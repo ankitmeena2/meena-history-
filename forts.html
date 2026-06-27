@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Forts — The Meena Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --gold:#C9A84C; --gold-dim:#8a6e32; --ink:#0e0e0e; --stone:#1a1a1a; --ash:#2a2a2a; --parchment:#f2ead8; --text:#d4cfc6; --muted:#7a7570; }
+    body { background: var(--ink); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 300; line-height: 1.7; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 3rem; background: rgba(14,14,14,0.95); border-bottom: 1px solid #1e1e1e; }
+    .nav-brand { font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.25em; color: var(--gold); text-decoration: none; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text); text-decoration: none; opacity: 0.7; transition: opacity 0.3s, color 0.3s; }
+    .nav-links a:hover, .nav-links a.active { opacity: 1; color: var(--gold); }
+
+    .page-hero { padding: 10rem 3rem 5rem; background: var(--stone); border-bottom: 1px solid #222; }
+    .breadcrumb { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.3em; color: var(--muted); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 6vw, 5rem); font-weight: 300; color: #fff; margin-bottom: 1rem; }
+    .page-sub { font-size: 0.9rem; color: var(--text); opacity: 0.6; max-width: 600px; }
+
+    .filter-bar { padding: 2rem 3rem; background: var(--ink); border-bottom: 1px solid #1e1e1e; display: flex; gap: 1rem; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
+    .filter-btn { font-family: 'Cinzel', serif; font-size: 0.58rem; letter-spacing: 0.25em; color: var(--muted); border: 1px solid #2a2a2a; padding: 0.5rem 1.2rem; cursor: pointer; background: none; transition: all 0.3s; }
+    .filter-btn:hover, .filter-btn.active { color: var(--gold); border-color: var(--gold-dim); }
+
+    .forts-container { max-width: 1200px; margin: 0 auto; padding: 3rem; }
+
+    .fort-entry {
+      display: grid; grid-template-columns: 220px 1fr;
+      gap: 0; background: var(--stone); margin-bottom: 1.5px;
+      border-left: 3px solid transparent;
+      transition: border-color 0.3s;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .fort-entry:hover { border-left-color: var(--gold); }
+
+    .fort-img {
+      height: 180px; overflow: hidden;
+    }
+    .fort-img img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6) saturate(0.5); transition: filter 0.4s; }
+    .fort-entry:hover .fort-img img { filter: brightness(0.75) saturate(0.7); }
+
+    .fort-info { padding: 1.8rem 2rem; display: flex; flex-direction: column; justify-content: center; }
+    .fort-meta-row { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+    .fort-district { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 0.25em; color: var(--gold); }
+    .fort-period { font-size: 0.7rem; color: var(--muted); }
+    .fort-name { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 400; color: #fff; margin-bottom: 0.5rem; line-height: 1.2; }
+    .fort-alt { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.7rem; font-style: italic; }
+    .fort-desc { font-size: 0.8rem; color: var(--text); opacity: 0.65; line-height: 1.75; }
+    .fort-tags { display: flex; gap: 0.5rem; margin-top: 0.9rem; flex-wrap: wrap; }
+    .fort-tag { font-size: 0.6rem; border: 1px solid #333; padding: 0.2rem 0.6rem; color: var(--muted); font-family: 'Cinzel', serif; letter-spacing: 0.15em; }
+
+    .expand-panel {
+      display: none; background: #131313;
+      border-left: 3px solid var(--gold);
+      margin-bottom: 1.5px; padding: 2.5rem 3rem;
+    }
+    .expand-panel.open { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+    .expand-panel h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--gold); margin-bottom: 0.8rem; }
+    .expand-panel p { font-size: 0.82rem; color: var(--text); opacity: 0.72; line-height: 1.9; margin-bottom: 0.8rem; }
+    .expand-panel .close-btn { font-family: 'Cinzel', serif; font-size: 0.58rem; letter-spacing: 0.2em; color: var(--muted); cursor: pointer; grid-column: 1/-1; margin-top: 0.5rem; }
+    .expand-panel .close-btn:hover { color: var(--gold); }
+    .source-note { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 0.5rem; }
+
+    .section-divider { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.4em; color: var(--gold); padding: 2.5rem 0 1rem; border-top: 1px solid #1e1e1e; margin-top: 2rem; }
+
+    footer { background: #080808; padding: 2rem 3rem; border-top: 1px solid #1e1e1e; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .footer-brand { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--gold); }
+    .footer-note { font-size: 0.72rem; color: var(--muted); }
+
+    @media(max-width: 768px) {
+      nav { padding: 1rem 1.5rem; } .nav-links { display: none; }
+      .forts-container { padding: 1.5rem; }
+      .fort-entry { grid-template-columns: 1fr; }
+      .fort-img { height: 160px; }
+      .expand-panel.open { grid-template-columns: 1fr; padding: 1.5rem; }
+      .filter-bar { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand">THE MEENA ARCHIVE</a>
+  <ul class="nav-links">
+    <li><a href="kingdoms.html">Kingdoms</a></li>
+    <li><a href="clans.html">Clans</a></li>
+    <li><a href="forts.html" class="active">Forts</a></li>
+    <li><a href="research.html">Research</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <p class="breadcrumb"><a href="index.html">Archive</a> &nbsp;/&nbsp; Forts</p>
+  <h1 class="page-title">Forts</h1>
+  <p class="page-sub">Historic forts, sacred landscapes and archaeological sites across Rajasthan with documented Meena presence, occupation or architectural heritage. Click any fort to expand its full entry.</p>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterForts('all', this)">All Forts</button>
+  <button class="filter-btn" onclick="filterForts('jaipur', this)">Jaipur</button>
+  <button class="filter-btn" onclick="filterForts('alwar', this)">Alwar</button>
+  <button class="filter-btn" onclick="filterForts('sawai', this)">Sawai Madhopur</button>
+  <button class="filter-btn" onclick="filterForts('bharatpur', this)">Bharatpur</button>
+  <button class="filter-btn" onclick="filterForts('karauli', this)">Karauli</button>
+  <button class="filter-btn" onclick="filterForts('tonk', this)">Tonk / Dausa</button>
+  <button class="filter-btn" onclick="filterForts('other', this)">Other Districts</button>
+</div>
+
+<div class="forts-container" id="forts-container">
+
+  <div class="section-divider">Jaipur Region</div>
+
+  <!-- AMBER -->
+  <div class="fort-entry" data-region="jaipur" onclick="toggleExpand('amber')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Amber_Fort_Rajasthan_India.jpg/800px-Amber_Fort_Rajasthan_India.jpg" alt="Amber Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Jaipur District</span>
+        <span class="fort-period">Pre-11th century CE</span>
+      </div>
+      <div class="fort-name">Amber Fort</div>
+      <div class="fort-alt">Also known as: Amer Qila</div>
+      <p class="fort-desc">Originally a Meena stronghold of the Susawat clan before the Kachhwaha Rajputs established their seat here. One of the most historically significant Meena sites in Rajasthan.</p>
+      <div class="fort-tags"><span class="fort-tag">Hill Fort</span><span class="fort-tag">Pre-Rajput Meena</span><span class="fort-tag">UNESCO Listed</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="amber">
+    <div>
+      <h3>Meena Presence at Amber</h3>
+      <p>The Amber plateau was controlled by the Susawat Meena before the Kachhwaha Rajput clan established its dominance — a transition that community traditions and some colonial records place between the 10th and 12th centuries CE. The Susawat chief Mina Raja is mentioned in local lore as the last Meena ruler of Amber.</p>
+      <p>Even after the political transition, Meena continued in custodial and watchman roles at the fort. The famous Shila Devi temple within the fort complex has Meena associations in folk tradition.</p>
+    </div>
+    <div>
+      <h3>Archaeological & Architectural Notes</h3>
+      <p>The fort complex as it stands today is largely a Kachhwaha construction (16th–18th centuries), but earlier structural layers may contain Meena-era foundations. No systematic archaeological stratification has been conducted to identify pre-Kachhwaha phases.</p>
+      <p class="source-note">Sources: Jaipur District Gazetteer; K.S. Singh, People of India: Rajasthan; community vanshavallis.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('amber', event)">▲ Close Entry</span>
+  </div>
+
+  <!-- BAIRATH / VIRATNAGAR -->
+  <div class="fort-entry" data-region="jaipur" onclick="toggleExpand('bairath')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Bairat_ruins.jpg/800px-Bairat_ruins.jpg" alt="Bairath ruins">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Jaipur District (Viratnagar)</span>
+        <span class="fort-period">Pre-Mauryan – Medieval</span>
+      </div>
+      <div class="fort-name">Bairath (Viratnagar)</div>
+      <div class="fort-alt">Ancient capital of the Matsya janapada</div>
+      <p class="fort-desc">One of the most archaeologically layered sites in Rajasthan, with Mauryan-era remains and deep Meena territorial associations throughout the medieval period.</p>
+      <div class="fort-tags"><span class="fort-tag">Archaeological Site</span><span class="fort-tag">Mauryan Era</span><span class="fort-tag">Meena Territory</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="bairath">
+    <div>
+      <h3>Historical Significance</h3>
+      <p>Bairath is identified with ancient Viratnagar, the capital of the Matsya kingdom mentioned in the Mahabharata. Meena community traditions associate the Matsya people with Meena ancestry — a claim that is part of identity discourse rather than established philology, but which reflects deep historical rootedness in this landscape.</p>
+      <p>The site yielded Ashokan rock edicts, Buddhist remains, and Mauryan coins during 19th-century excavations by Alexander Cunningham.</p>
+    </div>
+    <div>
+      <h3>Meena Territorial Presence</h3>
+      <p>Through the medieval period, Meena clans held territorial rights in the hills surrounding Bairath. The Aravalli landscape here sustained Meena settlement patterns that persisted through Rajput political consolidation and into the colonial era.</p>
+      <p class="source-note">Sources: ASI excavation reports (Cunningham); Jaipur District Gazetteer; secondary scholarship on Matsya janapada.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('bairath', event)">▲ Close Entry</span>
+  </div>
+
+  <!-- NAHARGARH -->
+  <div class="fort-entry" data-region="jaipur" onclick="toggleExpand('nahargarh')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Nahargarh_fort.jpg/800px-Nahargarh_fort.jpg" alt="Nahargarh Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Jaipur District</span>
+        <span class="fort-period">Pre-18th century (Kachhwaha construction 1734)</span>
+      </div>
+      <div class="fort-name">Nahargarh Fort</div>
+      <div class="fort-alt">Tiger Fort — Aravalli ridge, Jaipur</div>
+      <p class="fort-desc">The Aravalli ridge on which Nahargarh sits was a zone of Meena habitation and territorial authority before the Kachhwaha construction of 1734. Folk traditions associate the site with Meena presence.</p>
+      <div class="fort-tags"><span class="fort-tag">Hill Fort</span><span class="fort-tag">Aravalli Ridge</span><span class="fort-tag">Jaipur</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="nahargarh">
+    <div>
+      <h3>Pre-Kachhwaha Landscape</h3>
+      <p>The Aravalli hills above Jaipur were Meena territory before the expansion of the Kachhwaha state. When Maharaja Sawai Jai Singh II began construction of Nahargarh in 1734, the ridge was being incorporated into a larger fortification network around the newly founded city of Jaipur.</p>
+      <p>The name "Nahargarh" is said by some traditions to derive from the spirit of a Meena (or Rathore) prince named Nahar Singh, whose presence had to be appeased before construction could proceed.</p>
+    </div>
+    <div>
+      <h3>Landscape & Ecology</h3>
+      <p>The Nahargarh hills form part of the Aravalli range that sustained Meena hill communities across the Jaipur–Alwar corridor. The ecological knowledge, forest rights, and territorial relationships of Meena communities in these hills are documented in colonial forest settlement records.</p>
+      <p class="source-note">Sources: Jaipur State records; colonial forest settlement reports; local folk traditions.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('nahargarh', event)">▲ Close Entry</span>
+  </div>
+
+  <!-- JAIGARH -->
+  <div class="fort-entry" data-region="jaipur" onclick="toggleExpand('jaigarh')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Jaigarh_Fort_Jaipur_Rajasthan_India.jpg/800px-Jaigarh_Fort_Jaipur_Rajasthan_India.jpg" alt="Jaigarh Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Jaipur District</span>
+        <span class="fort-period">Medieval – 18th century</span>
+      </div>
+      <div class="fort-name">Jaigarh Fort</div>
+      <div class="fort-alt">Victory Fort — adjacent to Amber</div>
+      <p class="fort-desc">Commanding fort on the Cheel ka Teela (Hill of Eagles), directly above Amber. The ridge was historically a Meena-held landscape before formal Kachhwaha fortification.</p>
+      <div class="fort-tags"><span class="fort-tag">Hill Fort</span><span class="fort-tag">Artillery Fort</span><span class="fort-tag">Adjacent to Amber</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="jaigarh">
+    <div>
+      <h3>Hill of Eagles — Meena Landscape</h3>
+      <p>The Cheel ka Teela ridge that Jaigarh occupies forms a continuous landscape with Amber, and Meena territorial presence across this ridge predated Kachhwaha fortification. The construction of Jaigarh as an artillery fort in the 18th century built upon existing defensive logic developed over centuries of Meena hill habitation.</p>
+    </div>
+    <div>
+      <h3>Architectural Context</h3>
+      <p>Jaigarh is famous for housing the Jaivana cannon, one of the world's largest wheeled cannons. The fort's water cisterns and granaries indicate it was designed for extended siege endurance — a logic rooted in the hill-fort traditions that Meena communities perfected across the Aravallis.</p>
+      <p class="source-note">Sources: Jaipur State architectural records; Kachhwaha court chronicles.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('jaigarh', event)">▲ Close Entry</span>
+  </div>
+
+  <div class="section-divider">Alwar Region</div>
+
+  <!-- BHANGARH -->
+  <div class="fort-entry" data-region="alwar" onclick="toggleExpand('bhangarh')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Bhangarh_Fort_entrance.jpg/800px-Bhangarh_Fort_entrance.jpg" alt="Bhangarh Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Alwar District</span>
+        <span class="fort-period">Pre-17th century / Mughal period</span>
+      </div>
+      <div class="fort-name">Bhangarh Fort</div>
+      <div class="fort-alt">Sariska Tiger Reserve area</div>
+      <p class="fort-desc">Medieval fortified town at the edge of the Sariska wildlife area, constructed in an Aravalli landscape with deep Meena habitation history. The hills surrounding Bhangarh were Meena territory.</p>
+      <div class="fort-tags"><span class="fort-tag">Fortified Town</span><span class="fort-tag">Aravalli</span><span class="fort-tag">Alwar</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="bhangarh">
+    <div>
+      <h3>Bhangarh and Meena Territory</h3>
+      <p>The town of Bhangarh was built by Madho Singh I in 1573 CE in a landscape long inhabited by Meena communities. The Aravalli foothills of Alwar district were a primary zone of Meena settlement, and Bhangarh's construction represented the extension of Rajput political authority into terrain that Meena chiefs had previously dominated.</p>
+      <p>The ruins that survive — temples, havelis, bazaars — date to the Rajput and Mughal period, but the surrounding landscape carries much older Meena territorial memory.</p>
+    </div>
+    <div>
+      <h3>Sariska Landscape</h3>
+      <p>The hills around Bhangarh — now part of the Sariska Tiger Reserve — were historically a Meena forest-and-hill territory. Colonial forest settlement records document Meena rights over forest produce and grazing in this zone, rights that were systematically curtailed through the late 19th and early 20th centuries.</p>
+      <p class="source-note">Sources: Alwar State Gazetteer; ASI monument records; colonial forest settlement reports.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('bhangarh', event)">▲ Close Entry</span>
+  </div>
+
+  <!-- ALWAR FORT -->
+  <div class="fort-entry" data-region="alwar" onclick="toggleExpand('alwarfort')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Alwar_Fort_%28Bala_Quila%29.jpg/800px-Alwar_Fort_%28Bala_Quila%29.jpg" alt="Alwar Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Alwar District</span>
+        <span class="fort-period">Pre-10th century – Colonial</span>
+      </div>
+      <div class="fort-name">Alwar Fort (Bala Quila)</div>
+      <div class="fort-alt">One of the oldest forts in Rajasthan</div>
+      <p class="fort-desc">An ancient hill fort predating the Rajput states. The Aravalli ridge on which it stands was Meena territory; the fort's pre-Rajput layers are associated with Meena occupation.</p>
+      <div class="fort-tags"><span class="fort-tag">Hill Fort</span><span class="fort-tag">Pre-Rajput</span><span class="fort-tag">Aravalli</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="alwarfort">
+    <div>
+      <h3>Pre-Rajput Occupation</h3>
+      <p>Bala Quila (Upper Fort) at Alwar is considered one of the oldest forts in Rajasthan, with construction traditions suggesting origins well before the Rajput consolidation of the 10th–12th centuries. The Aravalli ridge on which it stands was part of the hill territory controlled by Meena chiefs before the expansion of the Nikumbha Rajput state and later the Mewat region's political reorganization.</p>
+    </div>
+    <div>
+      <h3>Strategic Significance</h3>
+      <p>The fort's commanding position over the Alwar valley made it a critical node in regional politics. Meena hill communities in the surrounding Aravalli ranges maintained semi-autonomous presence around this fort complex through successive political transitions.</p>
+      <p class="source-note">Sources: Alwar District Gazetteer; Tod's Annals and Antiquities of Rajasthan; colonial survey records.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('alwarfort', event)">▲ Close Entry</span>
+  </div>
+
+  <!-- TIJARA FORT -->
+  <div class="fort-entry" data-region="alwar" onclick="toggleExpand('tijara')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Tijara_Fort_Palace.jpg/800px-Tijara_Fort_Palace.jpg" alt="Tijara Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Alwar District</span>
+        <span class="fort-period">Medieval</span>
+      </div>
+      <div class="fort-name">Tijara Fort</div>
+      <div class="fort-alt">Alwar–Bharatpur corridor</div>
+      <p class="fort-desc">A fort at the transitional zone between Alwar and Bharatpur, situated in territory with documented Meena habitation history in the surrounding plains and hills.</p>
+      <div class="fort-tags"><span class="fort-tag">Plains Fort</span><span class="fort-tag">Alwar</span><span class="fort-tag">Corridor Site</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="tijara">
+    <div>
+      <h3>Corridor Territory</h3>
+      <p>Tijara sits in the zone between the Aravalli hills and the Gangetic plains — a landscape corridor that Meena communities traversed and inhabited. The surrounding agricultural belt and its zamindari rights have Meena historical associations documented in revenue settlement records.</p>
+    </div>
+    <div>
+      <h3>Later History</h3>
+      <p>The fort passed through Jat and Mughal control before becoming part of the Alwar state. Its historical layers represent the complexity of the political geography that Meena communities navigated over centuries.</p>
+      <p class="source-note">Sources: Alwar State records; colonial revenue settlement reports.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('tijara', event)">▲ Close Entry</span>
+  </div>
+
+  <div class="section-divider">Sawai Madhopur Region</div>
+
+  <!-- RANTHAMBORE -->
+  <div class="fort-entry" data-region="sawai" onclick="toggleExpand('ranthambore')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Ranthambore_Fort.jpg/800px-Ranthambore_Fort.jpg" alt="Ranthambore Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Sawai Madhopur District</span>
+        <span class="fort-period">Pre-10th century – 1301 CE (Siege)</span>
+      </div>
+      <div class="fort-name">Ranthambore Fort</div>
+      <div class="fort-alt">Ranthasambhar — UNESCO World Heritage Site</div>
+      <p class="fort-desc">One of the most strategically significant forts in medieval Rajasthan. Meena communities held territorial authority across the surrounding forest and hill landscape well before and during the fort's political history.</p>
+      <div class="fort-tags"><span class="fort-tag">Hill Fort</span><span class="fort-tag">UNESCO Listed</span><span class="fort-tag">Forest Territory</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="ranthambore">
+    <div>
+      <h3>Meena Forest Territory</h3>
+      <p>The dense forest landscape around Ranthambore — now a tiger reserve — was historically Meena territory. Meena communities lived in and managed these forests for generations, with rights over forest produce, hunting grounds, and agricultural clearings in the hills.</p>
+      <p>The fort itself became famous in medieval history as the seat of the Chahamana (Chauhan) rulers who resisted the Delhi Sultanate's forces under Alauddin Khalji in 1301 CE — a political drama that unfolded in a landscape deeply inhabited by Meena communities.</p>
+    </div>
+    <div>
+      <h3>Colonial Dispossession</h3>
+      <p>The declaration of Ranthambore as a protected hunting reserve for the Jaipur state, and later as a wildlife sanctuary under British influence, progressively curtailed Meena rights over the forest landscape. The process of forest dispossession here follows patterns documented across tribal Rajasthan.</p>
+      <p class="source-note">Sources: Sawai Madhopur Gazetteer; ASI fort records; colonial forest department records; secondary literature on tribal dispossession in Rajasthan.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('ranthambore', event)">▲ Close Entry</span>
+  </div>
+
+  <!-- KHANDAR FORT -->
+  <div class="fort-entry" data-region="sawai" onclick="toggleExpand('khandar')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Khandar_Fort_Sawai_Madhopur.jpg/800px-Khandar_Fort_Sawai_Madhopur.jpg" alt="Khandar Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Sawai Madhopur District</span>
+        <span class="fort-period">Medieval</span>
+      </div>
+      <div class="fort-name">Khandar Fort</div>
+      <div class="fort-alt">Khandhar — overlooking Chambal valley</div>
+      <p class="fort-desc">A hilltop fort overlooking the Chambal valley terrain, in territory with documented Meena habitation. The Chambal corridor has historically been a zone of Meena territorial presence.</p>
+      <div class="fort-tags"><span class="fort-tag">Hill Fort</span><span class="fort-tag">Chambal</span><span class="fort-tag">Sawai Madhopur</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="khandar">
+    <div>
+      <h3>Chambal Corridor</h3>
+      <p>The Khandar fort overlooks a landscape where the Chambal river and its tributaries carved ravines that historically provided refuge and livelihood for Meena communities. The fort's position above this terrain made it a control point over Meena-inhabited territory.</p>
+    </div>
+    <div>
+      <h3>Political History</h3>
+      <p>Khandar passed through the control of various Rajput states and Mughal administration. The Meena communities in the surrounding plains and ravines engaged with these successive authorities as cultivators, zamindars, and forest-right holders.</p>
+      <p class="source-note">Sources: Sawai Madhopur district records; secondary literature on Chambal tribal history.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('khandar', event)">▲ Close Entry</span>
+  </div>
+
+  <div class="section-divider">Karauli Region</div>
+
+  <!-- KARAULI FORT -->
+  <div class="fort-entry" data-region="karauli" onclick="toggleExpand('karauli')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Karauli_Fort.jpg/800px-Karauli_Fort.jpg" alt="Karauli Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Karauli District</span>
+        <span class="fort-period">14th century – Colonial</span>
+      </div>
+      <div class="fort-name">Karauli Fort (City Palace)</div>
+      <div class="fort-alt">Seat of the Yadava rulers of Karauli state</div>
+      <p class="fort-desc">The Karauli state's administrative centre, set in territory where Meena zamindars had extensive documented rights predating Yadava political consolidation.</p>
+      <div class="fort-tags"><span class="fort-tag">Palace Fort</span><span class="fort-tag">Yadava State</span><span class="fort-tag">Meena Zamindari</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="karauli">
+    <div>
+      <h3>Meena Zamindari in Karauli</h3>
+      <p>Before the establishment of the Yadava-ruled Karauli state (traditionally dated to 1348 CE), the surrounding territory had significant Meena political presence. Colonial revenue records from the 19th century document Meena zamindars across Karauli district whose rights were acknowledged as predating the Yadava state's consolidation.</p>
+    </div>
+    <div>
+      <h3>Toda Bhim and Surrounding Territory</h3>
+      <p>The Karauli region includes the town of Toda Bhim, whose toponym is associated with Meena territorial presence. The landscape between Karauli and Sawai Madhopur — the Chambal–Banas doab — sustained Meena communities through successive political orders.</p>
+      <p class="source-note">Sources: Karauli State Gazetteer; British settlement reports; K.S. Singh, People of India: Rajasthan.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('karauli', event)">▲ Close Entry</span>
+  </div>
+
+  <div class="section-divider">Bharatpur Region</div>
+
+  <!-- BHARATPUR (LOHAGARH) -->
+  <div class="fort-entry" data-region="bharatpur" onclick="toggleExpand('lohagarh')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Lohagarh_fort.jpg/800px-Lohagarh_fort.jpg" alt="Lohagarh Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Bharatpur District</span>
+        <span class="fort-period">18th century (Jat construction on older base)</span>
+      </div>
+      <div class="fort-name">Lohagarh Fort</div>
+      <div class="fort-alt">Iron Fort — Bharatpur</div>
+      <p class="fort-desc">The Iron Fort of Bharatpur, built by the Jat ruler Suraj Mal, stands in territory that earlier had Meena habitation and zamindari presence across the eastern Rajasthan plains.</p>
+      <div class="fort-tags"><span class="fort-tag">Plains Fort</span><span class="fort-tag">Jat Construction</span><span class="fort-tag">Bharatpur</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="lohagarh">
+    <div>
+      <h3>Eastern Plains Territory</h3>
+      <p>The Bharatpur plains — the easternmost zone of Rajasthan — saw the historical presence of Meena communities as cultivators and zamindars before Jat political consolidation in the 17th–18th centuries. Dhakar Meena and other clans are documented in this region's revenue history.</p>
+    </div>
+    <div>
+      <h3>Political Transitions</h3>
+      <p>The Bharatpur landscape passed through Mughal administration, Jat chieftaincy consolidation, and finally British colonial rule — each transition reshaping the rights and roles of Meena communities in the agrarian and revenue systems.</p>
+      <p class="source-note">Sources: Bharatpur Gazetteer; Imperial Gazetteer of India; colonial revenue settlement records.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('lohagarh', event)">▲ Close Entry</span>
+  </div>
+
+  <div class="section-divider">Tonk / Dausa Region</div>
+
+  <!-- TODA BHIM -->
+  <div class="fort-entry" data-region="tonk" onclick="toggleExpand('todabhim')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Amber_fort_Jaipur_2010.jpg/800px-Amber_fort_Jaipur_2010.jpg" alt="Toda Bhim region">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Karauli / Dausa Districts</span>
+        <span class="fort-period">Medieval – Present</span>
+      </div>
+      <div class="fort-name">Toda Bhim Fortified Settlement</div>
+      <div class="fort-alt">Meena toponymic site</div>
+      <p class="fort-desc">A fortified settlement whose very name preserves Meena territorial identity. Toda Bhim is one of the clearest toponymic markers of historical Meena presence in eastern Rajasthan.</p>
+      <div class="fort-tags"><span class="fort-tag">Fortified Settlement</span><span class="fort-tag">Meena Toponym</span><span class="fort-tag">Karauli</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="todabhim">
+    <div>
+      <h3>Toponymic Evidence</h3>
+      <p>The name "Toda Bhim" is widely understood to derive from Meena clan presence in the area — "Toda" being associated with a Meena clan name. Place-name evidence of this kind is often the most durable marker of pre-Rajput territorial identity in Rajasthan, surviving political transitions that erased other forms of documentation.</p>
+    </div>
+    <div>
+      <h3>Meena Political Presence</h3>
+      <p>The Toda Bhim region served as an important node in the historical geography of Meena territorial authority between the Karauli and Dausa districts. Colonial settlement records document Meena zamindari rights persisting here through the 19th century.</p>
+      <p class="source-note">Sources: Karauli State records; toponymic scholarship; revenue settlement records.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('todabhim', event)">▲ Close Entry</span>
+  </div>
+
+  <!-- SAMBHAR FORT -->
+  <div class="fort-entry" data-region="tonk" onclick="toggleExpand('sambhar')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Sambhar_Lake_Rajasthan.jpg/800px-Sambhar_Lake_Rajasthan.jpg" alt="Sambhar Lake region">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Jaipur / Nagaur Districts</span>
+        <span class="fort-period">Pre-Chahamana – Medieval</span>
+      </div>
+      <div class="fort-name">Sambhar Fort & Salt Lake Region</div>
+      <div class="fort-alt">Shakambhari — Ancient Chahamana seat</div>
+      <p class="fort-desc">The Sambhar lake region, seat of the ancient Chahamana (Chauhan) kingdom, is surrounded by territory with pre-Rajput Meena habitation. The strategic resource of the salt lake was contested by multiple communities.</p>
+      <div class="fort-tags"><span class="fort-tag">Salt Lake Territory</span><span class="fort-tag">Pre-Chahamana</span><span class="fort-tag">Jaipur–Nagaur</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="sambhar">
+    <div>
+      <h3>Pre-Rajput Landscape</h3>
+      <p>The Sambhar lake and its salt resources were of extraordinary economic value in the pre-modern period. The surrounding landscape sustained communities — including Meena populations — before the Chahamana Rajput state made Shakambhari its capital (roughly 7th–12th centuries CE). Meena territorial presence in the dryland agriculture and salt-processing zones around the lake is indicated in later revenue records.</p>
+    </div>
+    <div>
+      <h3>Economic Geography</h3>
+      <p>The salt lake at Sambhar was a major node in the subcontinental salt trade. Control over this resource shaped the political economy of the surrounding region for centuries. Meena communities participated in this economy as cultivators, traders, and, in some accounts, as armed guardians of transit routes.</p>
+      <p class="source-note">Sources: Chahamana inscriptions; Ain-i-Akbari; secondary scholarship on Rajasthan political economy.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('sambhar', event)">▲ Close Entry</span>
+  </div>
+
+  <div class="section-divider">Other Districts</div>
+
+  <!-- GAGRON FORT -->
+  <div class="fort-entry" data-region="other" onclick="toggleExpand('gagron')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Gagron_Fort.jpg/800px-Gagron_Fort.jpg" alt="Gagron Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Jhalawar District</span>
+        <span class="fort-period">7th century CE onwards</span>
+      </div>
+      <div class="fort-name">Gagron Fort</div>
+      <div class="fort-alt">Water fort at the confluence of Ahu and Kali Sindh rivers</div>
+      <p class="fort-desc">A UNESCO-listed water fort in southern Rajasthan. The surrounding Hadoti region has documented Meena tribal presence, particularly in the hills and forest tracts adjacent to the river plains.</p>
+      <div class="fort-tags"><span class="fort-tag">Water Fort</span><span class="fort-tag">UNESCO Listed</span><span class="fort-tag">Hadoti</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="gagron">
+    <div>
+      <h3>Hadoti Region Context</h3>
+      <p>The Hadoti plateau — which includes Jhalawar, Baran, Kota and Bundi — has historically had significant tribal and Meena presence, particularly in its hill and forest fringes. Gagron Fort's strategic location at a river confluence made it a focal point of regional politics, around which various communities — including Meena — organized their territorial relationships.</p>
+    </div>
+    <div>
+      <h3>Historical Sieges</h3>
+      <p>Gagron witnessed several significant sieges, including by Malwa Sultanate forces in the 15th century. These events unfolded in a landscape where Meena and other tribal communities were significant, if rarely foregrounded in chronicle sources.</p>
+      <p class="source-note">Sources: ASI World Heritage records; Jhalawar Gazetteer; secondary scholarship on Hadoti history.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('gagron', event)">▲ Close Entry</span>
+  </div>
+
+  <!-- CHITTORGARH -->
+  <div class="fort-entry" data-region="other" onclick="toggleExpand('chittorgarh')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Chittorgarh_fort.jpg/800px-Chittorgarh_fort.jpg" alt="Chittorgarh Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Chittorgarh District</span>
+        <span class="fort-period">Pre-7th century CE onwards</span>
+      </div>
+      <div class="fort-name">Chittorgarh Fort</div>
+      <div class="fort-alt">Chitrakuta — largest fort in India</div>
+      <p class="fort-desc">The largest fort in India and a UNESCO World Heritage Site. Pre-Rajput habitation of the Chittorgarh plateau has Meena community associations, and Bhil–Meena communities are documented in the surrounding landscape.</p>
+      <div class="fort-tags"><span class="fort-tag">Hill Fort</span><span class="fort-tag">UNESCO Listed</span><span class="fort-tag">Pre-Rajput</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="chittorgarh">
+    <div>
+      <h3>Pre-Rajput Habitation</h3>
+      <p>Before the Guhila/Sisodia Rajput rulers made Chittorgarh (Chitrakuta) their capital, the massive plateau had a complex habitation history. Community traditions associate the site's earliest occupants with Meena and other indigenous groups. The surrounding hills and forests were a landscape of Bhil and Meena territorial presence that persisted even as Rajput political authority consolidated on the plateau.</p>
+    </div>
+    <div>
+      <h3>Tribal Landscape</h3>
+      <p>The broader Chittorgarh region — particularly its eastern and southern fringes — remains an area with significant Meena and Bhil population. The relationship between fort-based Rajput political power and hill-based tribal territorial authority is a defining feature of this region's historical landscape.</p>
+      <p class="source-note">Sources: ASI World Heritage records; Chittorgarh District Gazetteer; secondary scholarship on Rajput–tribal relations.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('chittorgarh', event)">▲ Close Entry</span>
+  </div>
+
+  <!-- MANDALGARH -->
+  <div class="fort-entry" data-region="other" onclick="toggleExpand('mandalgarh')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Amber_fort_Jaipur_2010.jpg/800px-Amber_fort_Jaipur_2010.jpg" alt="Mandalgarh Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Bhilwara District</span>
+        <span class="fort-period">Medieval</span>
+      </div>
+      <div class="fort-name">Mandalgarh Fort</div>
+      <div class="fort-alt">Mewar–Marwar transitional zone</div>
+      <p class="fort-desc">A strategically placed fort at the intersection of the Mewar and Marwar regions. The surrounding Bhilwara–Ajmer zone is documented as a landscape of Meena settlement and territorial presence.</p>
+      <div class="fort-tags"><span class="fort-tag">Hill Fort</span><span class="fort-tag">Bhilwara</span><span class="fort-tag">Mewar Zone</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="mandalgarh">
+    <div>
+      <h3>Mewar Transitional Landscape</h3>
+      <p>The Bhilwara–Mandalgarh zone sits at the meeting point of multiple political geographies. Meena communities in this transitional landscape engaged with Mewar, Marwar, and Mughal administrative systems while maintaining distinct territorial presence, particularly in the river valley and hill terrain around the Banas river.</p>
+    </div>
+    <div>
+      <h3>Revenue History</h3>
+      <p>Mewar state revenue records and later Rajputana Agency records document the role of Meena communities in the agrarian economy of the Mandalgarh region. Their presence as zamindars and cultivators predates Rajput state consolidation in the area.</p>
+      <p class="source-note">Sources: Mewar State records; Bhilwara Gazetteer; secondary scholarship.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('mandalgarh', event)">▲ Close Entry</span>
+  </div>
+
+  <!-- ACHALGARH -->
+  <div class="fort-entry" data-region="other" onclick="toggleExpand('achalgarh')">
+    <div class="fort-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Achalgarh_Fort.jpg/800px-Achalgarh_Fort.jpg" alt="Achalgarh Fort">
+    </div>
+    <div class="fort-info">
+      <div class="fort-meta-row">
+        <span class="fort-district">Sirohi District (Mount Abu)</span>
+        <span class="fort-period">14th century CE</span>
+      </div>
+      <div class="fort-name">Achalgarh Fort</div>
+      <div class="fort-alt">Mount Abu — Aravalli summit fort</div>
+      <p class="fort-desc">A Paramara-then-Mewar fort at the summit of the Aravalli range. The Mount Abu plateau and surrounding hills have Meena and Bhil habitation history stretching to the pre-Rajput period.</p>
+      <div class="fort-tags"><span class="fort-tag">Summit Fort</span><span class="fort-tag">Mount Abu</span><span class="fort-tag">Aravalli</span></div>
+    </div>
+  </div>
+  <div class="expand-panel" id="achalgarh">
+    <div>
+      <h3>Aravalli Summit Territory</h3>
+      <p>Mount Abu — the only hill station in Rajasthan — sits atop the highest point of the Aravalli range. The indigenous communities of the Mount Abu plateau and surrounding forests have historically included Garasia, Bhil, and Meena populations. The fort at Achalgarh was constructed by Rana Kumbha of Mewar in the 15th century, overlying an earlier Paramara-era structure in a landscape with deep tribal habitation history.</p>
+    </div>
+    <div>
+      <h3>Sacred Landscape</h3>
+      <p>The Aravalli summit zone around Mount Abu contains sites sacred to multiple traditions, including tribal sacred groves and ancestral sites associated with Meena and Bhil communities. The imposition of Rajput and later colonial political authority over this landscape reshaped — but did not erase — older patterns of indigenous sacred geography.</p>
+      <p class="source-note">Sources: ASI fort records; Sirohi Gazetteer; secondary scholarship on Aravalli tribal history.</p>
+    </div>
+    <span class="close-btn" onclick="closeExpand('achalgarh', event)">▲ Close Entry</span>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-brand">THE MEENA ARCHIVE</div>
+  <p class="footer-note">All fort entries sourced from gazetteers, ASI records, and secondary scholarship. Historical claims flagged where contested.</p>
+</footer>
+
+<script>
+  function toggleExpand(id) {
+    const panel = document.getElementById(id);
+    const isOpen = panel.classList.contains('open');
+    document.querySelectorAll('.expand-panel').forEach(p => p.classList.remove('open'));
+    if (!isOpen) {
+      panel.classList.add('open');
+      setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+    }
+  }
+  function closeExpand(id, e) {
+    e.stopPropagation();
+    document.getElementById(id).classList.remove('open');
+  }
+  function filterForts(region, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.expand-panel').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.fort-entry').forEach(entry => {
+      entry.style.display = (region === 'all' || entry.dataset.region === region) ? 'grid' : 'none';
+    });
+    document.querySelectorAll('.section-divider').forEach(div => {
+      if (region !== 'all') div.style.display = 'none';
+      else div.style.display = 'block';
+    });
+  }
+</script>
+
+</body>
+</html>
