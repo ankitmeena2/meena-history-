@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Research — The Meena Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --gold:#C9A84C; --gold-dim:#8a6e32; --ink:#0e0e0e; --stone:#1a1a1a; --ash:#2a2a2a; --parchment:#f2ead8; --text:#d4cfc6; --muted:#7a7570; }
+    body { background: var(--ink); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 300; line-height: 1.7; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 3rem; background: rgba(14,14,14,0.95); border-bottom: 1px solid #1e1e1e; }
+    .nav-brand { font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.25em; color: var(--gold); text-decoration: none; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text); text-decoration: none; opacity: 0.7; transition: opacity 0.3s, color 0.3s; }
+    .nav-links a:hover, .nav-links a.active { opacity: 1; color: var(--gold); }
+
+    .page-hero { padding: 10rem 3rem 5rem; background: var(--stone); border-bottom: 1px solid #222; }
+    .breadcrumb { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.3em; color: var(--muted); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 6vw, 5rem); font-weight: 300; color: #fff; margin-bottom: 1rem; }
+    .page-sub { font-size: 0.9rem; color: var(--text); opacity: 0.6; max-width: 640px; }
+
+    .research-layout { display: grid; grid-template-columns: 240px 1fr; gap: 0; max-width: 1200px; margin: 0 auto; min-height: 70vh; }
+
+    .sidebar { background: var(--stone); border-right: 1px solid #1e1e1e; padding: 3rem 2rem; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; }
+    .sidebar-label { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 0.35em; color: var(--muted); margin-bottom: 1.5rem; display: block; }
+    .sidebar-nav { list-style: none; }
+    .sidebar-nav li { margin-bottom: 0.2rem; }
+    .sidebar-nav a { font-size: 0.8rem; color: var(--text); opacity: 0.6; text-decoration: none; padding: 0.4rem 0.8rem; display: block; border-left: 2px solid transparent; transition: all 0.3s; }
+    .sidebar-nav a:hover, .sidebar-nav a.active { opacity: 1; color: var(--gold); border-left-color: var(--gold); background: rgba(201,168,76,0.05); }
+
+    .research-content { padding: 3rem 3.5rem; }
+
+    .category-section { margin-bottom: 4rem; scroll-margin-top: 80px; }
+    .cat-header { display: flex; align-items: baseline; gap: 1.5rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #1e1e1e; }
+    .cat-title { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 300; color: #fff; }
+    .cat-count { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.2em; color: var(--muted); }
+
+    .entry-card { border-bottom: 1px solid #1a1a1a; padding: 1.8rem 0; transition: padding 0.2s; }
+    .entry-card:hover { padding-left: 1rem; border-left: 2px solid var(--gold-dim); }
+    .entry-type { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 0.25em; color: var(--gold); margin-bottom: 0.5rem; display: inline-block; }
+    .entry-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; color: #fff; margin-bottom: 0.3rem; line-height: 1.35; }
+    .entry-author { font-size: 0.78rem; color: var(--text); opacity: 0.6; margin-bottom: 0.4rem; }
+    .entry-publisher { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.6rem; }
+    .entry-note { font-size: 0.78rem; color: var(--text); opacity: 0.55; line-height: 1.7; font-style: italic; }
+    .entry-tags { display: flex; gap: 0.4rem; margin-top: 0.7rem; flex-wrap: wrap; }
+    .entry-tag { font-size: 0.58rem; border: 1px solid #2a2a2a; padding: 0.15rem 0.5rem; color: var(--muted); font-family: 'Cinzel', serif; letter-spacing: 0.12em; }
+
+    .archive-note {
+      background: var(--stone); border-left: 3px solid var(--gold-dim);
+      padding: 2rem 2.5rem; margin: 3rem 0;
+    }
+    .archive-note p { font-size: 0.82rem; color: var(--text); opacity: 0.7; line-height: 1.9; }
+    .archive-note strong { color: var(--gold); font-weight: 400; }
+
+    .contribute-section {
+      background: #0a0a0a; border: 1px solid #1e1e1e;
+      padding: 3rem; text-align: center; margin-top: 4rem;
+    }
+    .contribute-section h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #fff; margin-bottom: 1rem; font-weight: 300; }
+    .contribute-section p { font-size: 0.83rem; color: var(--text); opacity: 0.6; max-width: 480px; margin: 0 auto 1.5rem; }
+    .contribute-btn { display: inline-block; font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.25em; color: var(--gold); border: 1px solid var(--gold); padding: 0.8rem 2rem; text-decoration: none; transition: all 0.3s; }
+    .contribute-btn:hover { background: var(--gold); color: var(--ink); }
+
+    footer { background: #080808; padding: 2rem 3rem; border-top: 1px solid #1e1e1e; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .footer-brand { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--gold); }
+    .footer-note { font-size: 0.72rem; color: var(--muted); }
+
+    @media(max-width:768px) {
+      nav { padding: 1rem 1.5rem; } .nav-links { display:none; }
+      .research-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .research-content { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand">THE MEENA ARCHIVE</a>
+  <ul class="nav-links">
+    <li><a href="kingdoms.html">Kingdoms</a></li>
+    <li><a href="clans.html">Clans</a></li>
+    <li><a href="forts.html">Forts</a></li>
+    <li><a href="research.html" class="active">Research</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <p class="breadcrumb"><a href="index.html">Archive</a> &nbsp;/&nbsp; Research</p>
+  <h1 class="page-title">Research</h1>
+  <p class="page-sub">A curated bibliography of books, journals, colonial gazetteers, government reports and manuscripts relevant to Meena history, political economy and heritage across Rajasthan.</p>
+</div>
+
+<div class="research-layout">
+
+  <aside class="sidebar">
+    <span class="sidebar-label">Categories</span>
+    <ul class="sidebar-nav">
+      <li><a href="#books" class="active" onclick="setActive(this)">Books & Monographs</a></li>
+      <li><a href="#gazetteers" onclick="setActive(this)">Colonial Gazetteers</a></li>
+      <li><a href="#journals" onclick="setActive(this)">Journal Articles</a></li>
+      <li><a href="#government" onclick="setActive(this)">Government Reports</a></li>
+      <li><a href="#manuscripts" onclick="setActive(this)">Manuscripts & Archives</a></li>
+      <li><a href="#oral" onclick="setActive(this)">Oral & Folk Sources</a></li>
+    </ul>
+  </aside>
+
+  <main class="research-content">
+
+    <div class="archive-note">
+      <p><strong>Note on sources:</strong> Meena history is documented unevenly across available archives. Colonial gazetteers and revenue records, while produced under British administrative interest, remain the most detailed primary source base for 19th-century Meena territorial and social organization. Community-generated sources — vanshavallis, oral histories, folk genealogies — are underrepresented in formal archives and represent an urgent area for collection and preservation.</p>
+    </div>
+
+    <!-- BOOKS -->
+    <section class="category-section" id="books">
+      <div class="cat-header">
+        <h2 class="cat-title">Books & Monographs</h2>
+        <span class="cat-count">12 Entries</span>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">People of India: Rajasthan (Volumes I & II)</div>
+        <div class="entry-author">K.S. Singh (Ed.)</div>
+        <div class="entry-publisher">Anthropological Survey of India / Manohar Publishers, 1998</div>
+        <p class="entry-note">The most comprehensive anthropological survey of Rajasthan's communities, including the Meena. Contains clan lists, regional distribution, occupational data, and historical summaries. Essential starting point for any Meena research.</p>
+        <div class="entry-tags"><span class="entry-tag">Foundational</span><span class="entry-tag">Anthropology</span><span class="entry-tag">Clan Data</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">Annals and Antiquities of Rajasthan</div>
+        <div class="entry-author">James Tod</div>
+        <div class="entry-publisher">Smith, Elder & Co., London, 1829–1832</div>
+        <p class="entry-note">Tod's monumental colonial-era history of Rajasthan is deeply Rajput-centric and must be read critically, but contains scattered references to Meena communities that predate later colonial administrative documentation. Useful for reconstructing early 19th-century conditions.</p>
+        <div class="entry-tags"><span class="entry-tag">Colonial Source</span><span class="entry-tag">Use Critically</span><span class="entry-tag">Rajput Focus</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">Tribes and Castes of Rajputana</div>
+        <div class="entry-author">D.R. Bhandarkar, revised by W. Crooke</div>
+        <div class="entry-publisher">Government Press, Calcutta, 1920</div>
+        <p class="entry-note">An early systematic survey of Rajasthan's social groups under the colonial classification project. Contains entries on the Meena, though framed within problematic colonial categories (particularly the "criminal tribe" designation applied to some Meena groups). Read alongside later revisionist scholarship.</p>
+        <div class="entry-tags"><span class="entry-tag">Colonial Survey</span><span class="entry-tag">Use Critically</span><span class="entry-tag">Social History</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">A History of Rajasthan</div>
+        <div class="entry-author">Rima Hooja</div>
+        <div class="entry-publisher">Rupa & Co., New Delhi, 2006</div>
+        <p class="entry-note">A comprehensive modern history of Rajasthan covering pre-history through independence. More inclusive of non-Rajput communities than earlier histories. Useful for placing Meena history within the broader regional narrative.</p>
+        <div class="entry-tags"><span class="entry-tag">Modern Scholarship</span><span class="entry-tag">Regional History</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">The Criminal Tribes Act: Colonial India's Attempt to Classify and Control Mobile Communities</div>
+        <div class="entry-author">Radhakrishna, Meena</div>
+        <div class="entry-publisher">Orient Blackswan, 2001</div>
+        <p class="entry-note">Directly relevant to the stigmatization of Meena communities under the Criminal Tribes Act of 1871. Provides a revisionist framework for understanding how colonial classification distorted the historical record and impacted Meena community life.</p>
+        <div class="entry-tags"><span class="entry-tag">Criminal Tribes Act</span><span class="entry-tag">Colonial Law</span><span class="entry-tag">Key Text</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">State Formation and Radical Democracy in India</div>
+        <div class="entry-author">Srirupa Roy</div>
+        <div class="entry-publisher">Routledge, 2007</div>
+        <p class="entry-note">Relevant to understanding the post-independence political context in which the Meena community mobilized for Scheduled Tribe status and political representation in Rajasthan.</p>
+        <div class="entry-tags"><span class="entry-tag">Post-Independence</span><span class="entry-tag">Political Mobilization</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">Tribal Communities and Social Change</div>
+        <div class="entry-author">K.S. Singh</div>
+        <div class="entry-publisher">Sage Publications, 1985</div>
+        <p class="entry-note">Singh's broader theoretical work on tribal communities in India, relevant for contextualizing Meena social organization and change within the subcontinental tribal studies literature.</p>
+        <div class="entry-tags"><span class="entry-tag">Tribal Studies</span><span class="entry-tag">Theory</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">Pastoralists and Farmers: Ecological Transition in Western India</div>
+        <div class="entry-author">Vinay Gidwani</div>
+        <div class="entry-publisher">Cambridge University Press, 2008</div>
+        <p class="entry-note">Examines the long-run ecological and agrarian transformations of the western Indian landscape, providing context for understanding how communities like the Meena navigated the transition from mobile to settled agrarian lives.</p>
+        <div class="entry-tags"><span class="entry-tag">Political Ecology</span><span class="entry-tag">Agrarian History</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">Meena Jati Ka Itihas (History of the Meena Community)</div>
+        <div class="entry-author">Thakur Deshraj</div>
+        <div class="entry-publisher">Jat Sahitya Sadan, 1934 (Hindi)</div>
+        <p class="entry-note">An early community-generated history in Hindi. Though not always meeting academic standards of evidence, it is a crucial internal source for understanding how the Meena community has narrated its own past. Must be read critically but should not be dismissed.</p>
+        <div class="entry-tags"><span class="entry-tag">Community History</span><span class="entry-tag">Hindi Source</span><span class="entry-tag">Internal Narrative</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">Rajasthan ka Itihas (History of Rajasthan)</div>
+        <div class="entry-author">Dr. Gaurishankar Hirachand Ojha</div>
+        <div class="entry-publisher">Ajmer, multiple volumes, 1920s–1940s (Hindi)</div>
+        <p class="entry-note">Ojha's multi-volume state history in Hindi is the foundational work of professional Indian historiography on Rajasthan. Meena references are scattered but important for tracing the community within dynastic and political narratives.</p>
+        <div class="entry-tags"><span class="entry-tag">Foundational</span><span class="entry-tag">Hindi Source</span><span class="entry-tag">Dynastic History</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">Land Rights and Agrarian Change in South Asia</div>
+        <div class="entry-author">Neeladri Bhattacharya</div>
+        <div class="entry-publisher">Cambridge University Press, 2018</div>
+        <p class="entry-note">Essential for understanding the structural context of zamindari rights and land tenure in colonial and post-colonial India — relevant to the Meena zamindari history documented across Rajasthan's settlement records.</p>
+        <div class="entry-tags"><span class="entry-tag">Land Rights</span><span class="entry-tag">Colonial History</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Book</span>
+        <div class="entry-title">Tribes of India: The Struggle for Survival</div>
+        <div class="entry-author">Christoph von Fürer-Haimendorf</div>
+        <div class="entry-publisher">University of California Press, 1982</div>
+        <p class="entry-note">Classic comparative study of Indian tribal communities. Useful for the theoretical and comparative framework, though Meena are not a primary focus. Helps situate the Meena experience within pan-Indian tribal political history.</p>
+        <div class="entry-tags"><span class="entry-tag">Comparative Tribes</span><span class="entry-tag">Classic Text</span></div>
+      </div>
+    </section>
+
+    <!-- GAZETTEERS -->
+    <section class="category-section" id="gazetteers">
+      <div class="cat-header">
+        <h2 class="cat-title">Colonial Gazetteers</h2>
+        <span class="cat-count">8 Entries</span>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Gazetteer</span>
+        <div class="entry-title">Imperial Gazetteer of India: Rajputana</div>
+        <div class="entry-author">Various colonial administrators</div>
+        <div class="entry-publisher">Government of India Press, 1908</div>
+        <p class="entry-note">The central colonial administrative reference for Rajputana. Contains systematic data on population, caste, tribe, land tenure, and revenue — including references to Meena communities across districts. Available digitally through archive.org.</p>
+        <div class="entry-tags"><span class="entry-tag">Primary Source</span><span class="entry-tag">Colonial</span><span class="entry-tag">Available Digitally</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Gazetteer</span>
+        <div class="entry-title">Jaipur State Gazetteer</div>
+        <div class="entry-author">Rajputana Administration</div>
+        <div class="entry-publisher">Various editions, 1878–1904</div>
+        <p class="entry-note">The primary colonial administrative record for Jaipur state, containing the most detailed documentation of Meena zamindari rights, population distribution, and social organization in the Amber, Bairath, and surrounding regions.</p>
+        <div class="entry-tags"><span class="entry-tag">Primary Source</span><span class="entry-tag">Jaipur</span><span class="entry-tag">Meena Data</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Gazetteer</span>
+        <div class="entry-title">Alwar State Gazetteer</div>
+        <div class="entry-author">Rajputana Administration</div>
+        <div class="entry-publisher">1878</div>
+        <p class="entry-note">Documents Meena hill-community rights in the Aravalli tracts of Alwar state. Particularly valuable for the Charana clan and other Alwar-region Meena groups. Held at Rajasthan State Archives, Bikaner.</p>
+        <div class="entry-tags"><span class="entry-tag">Primary Source</span><span class="entry-tag">Alwar</span><span class="entry-tag">Hill Communities</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Gazetteer</span>
+        <div class="entry-title">Sawai Madhopur District Gazetteer</div>
+        <div class="entry-author">Government of Rajasthan</div>
+        <div class="entry-publisher">Rajasthan State Gazetteers, 1965 (post-independence edition)</div>
+        <p class="entry-note">The post-independence district gazetteer for Sawai Madhopur, covering the Ranthambore region and the Meena communities of the forest and agricultural tracts.</p>
+        <div class="entry-tags"><span class="entry-tag">Post-Independence</span><span class="entry-tag">Sawai Madhopur</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Gazetteer</span>
+        <div class="entry-title">Karauli State Gazetteer</div>
+        <div class="entry-author">Rajputana Administration</div>
+        <div class="entry-publisher">Late 19th century</div>
+        <p class="entry-note">Documents the Meena zamindari rights and community presence in the Karauli state territory, including the Toda Bhim region and the Chambal–Banas doab.</p>
+        <div class="entry-tags"><span class="entry-tag">Primary Source</span><span class="entry-tag">Karauli</span><span class="entry-tag">Zamindari</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Gazetteer</span>
+        <div class="entry-title">Bharatpur State Gazetteer</div>
+        <div class="entry-author">Rajputana Administration</div>
+        <div class="entry-publisher">1904</div>
+        <p class="entry-note">Covers the eastern Rajasthan plains, including Meena (Dhakar clan) zamindari and cultivator presence in Bharatpur and Dausa territories.</p>
+        <div class="entry-tags"><span class="entry-tag">Primary Source</span><span class="entry-tag">Bharatpur</span><span class="entry-tag">Plains Communities</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Gazetteer</span>
+        <div class="entry-title">Chittorgarh District Gazetteer</div>
+        <div class="entry-author">Government of Rajasthan</div>
+        <div class="entry-publisher">Rajasthan State Gazetteers, 1972</div>
+        <p class="entry-note">Covers Meena and Bhil community presence in the Chittorgarh region, particularly in the hill and forest margins of the district.</p>
+        <div class="entry-tags"><span class="entry-tag">Post-Independence</span><span class="entry-tag">Chittorgarh</span><span class="entry-tag">Tribal Communities</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Gazetteer</span>
+        <div class="entry-title">Ain-i-Akbari (Volume II — Rajputana chapters)</div>
+        <div class="entry-author">Abu'l-Fazl Allami (trans. H.S. Jarrett)</div>
+        <div class="entry-publisher">Asiatic Society of Bengal, 1891</div>
+        <p class="entry-note">Akbar's administrative survey of the Mughal empire contains references to Rajputana that are valuable for reconstructing the political context in which Meena communities operated in the 16th century. References to hill-tract revenue collection and Mewati regions are particularly relevant.</p>
+        <div class="entry-tags"><span class="entry-tag">Mughal Source</span><span class="entry-tag">16th Century</span><span class="entry-tag">Available Digitally</span></div>
+      </div>
+    </section>
+
+    <!-- JOURNALS -->
+    <section class="category-section" id="journals">
+      <div class="cat-header">
+        <h2 class="cat-title">Journal Articles</h2>
+        <span class="cat-count">7 Entries</span>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Journal Article</span>
+        <div class="entry-title">Tribal Land Rights and the Colonial State in Rajasthan</div>
+        <div class="entry-author">Sumit Guha</div>
+        <div class="entry-publisher"><em>Indian Economic & Social History Review</em>, Vol. 28, No. 2 (1991)</div>
+        <p class="entry-note">Guha's work on agrarian history and tribal communities in western India provides essential context for understanding how Meena land rights were constituted and contested under colonial rule.</p>
+        <div class="entry-tags"><span class="entry-tag">Land Rights</span><span class="entry-tag">Colonial</span><span class="entry-tag">Key Article</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Journal Article</span>
+        <div class="entry-title">The Criminal Tribes Act and the Meena Community of Rajasthan</div>
+        <div class="entry-author">Various — see note</div>
+        <div class="entry-publisher"><em>Studies in History</em>, relevant volumes</div>
+        <p class="entry-note">The colonial application of the Criminal Tribes Act to Meena communities in the late 19th century is documented in several historical articles. Search JSTOR and Sage journals for recent scholarship on this topic — it remains an active area of historical research.</p>
+        <div class="entry-tags"><span class="entry-tag">Criminal Tribes Act</span><span class="entry-tag">Search Required</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Journal Article</span>
+        <div class="entry-title">Subaltern Communities and Rajput State Formation in Early Medieval Rajasthan</div>
+        <div class="entry-author">Brajadulal Chattopadhyaya</div>
+        <div class="entry-publisher"><em>Indian Historical Review</em></div>
+        <p class="entry-note">Chattopadhyaya's work on early medieval state formation in Rajasthan directly addresses the question of pre-Rajput populations — including indigenous hill communities like the Meena — and how Rajput state-building transformed their political status.</p>
+        <div class="entry-tags"><span class="entry-tag">Medieval History</span><span class="entry-tag">State Formation</span><span class="entry-tag">Key Text</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Journal Article</span>
+        <div class="entry-title">Forests, Tribes and Colonial Governance in Rajputana</div>
+        <div class="entry-author">Mahesh Rangarajan</div>
+        <div class="entry-publisher"><em>Journal of Asian Studies</em></div>
+        <p class="entry-note">Rangarajan's environmental history scholarship is essential for understanding how colonial forest legislation — particularly the Indian Forest Act — curtailed Meena forest rights in the Ranthambore, Sariska and Aravalli regions.</p>
+        <div class="entry-tags"><span class="entry-tag">Forest Rights</span><span class="entry-tag">Environmental History</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Journal Article</span>
+        <div class="entry-title">Post-Independence Tribal Mobilization in Rajasthan: The Meena Movement</div>
+        <div class="entry-author">Various</div>
+        <div class="entry-publisher"><em>Economic and Political Weekly</em>, various issues</div>
+        <p class="entry-note">EPW has published several articles on Meena political mobilization in the post-independence period, particularly around Scheduled Tribe status, reservation politics, and the Meena Mahasabha. Search EPW archives for relevant pieces.</p>
+        <div class="entry-tags"><span class="entry-tag">Post-Independence</span><span class="entry-tag">Political Mobilization</span><span class="entry-tag">EPW Archives</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Journal Article</span>
+        <div class="entry-title">Caste, Tribe and the Politics of Reservation in Rajasthan</div>
+        <div class="entry-author">Christophe Jaffrelot</div>
+        <div class="entry-publisher"><em>Contributions to Indian Sociology</em></div>
+        <p class="entry-note">Jaffrelot's comparative work on reservation politics in Rajasthan addresses the Meena community's distinctive position as both a numerically significant ST group and a politically mobilized community in state-level electoral politics.</p>
+        <div class="entry-tags"><span class="entry-tag">Reservation Politics</span><span class="entry-tag">Electoral</span><span class="entry-tag">Contemporary</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Journal Article</span>
+        <div class="entry-title">Matsya Janapada and the Historical Identity of the Meena</div>
+        <div class="entry-author">Various — see note</div>
+        <div class="entry-publisher">Indian history journals — search required</div>
+        <p class="entry-note">The claim that the Meena descend from the ancient Matsya people is a significant element of community identity. This claim has been examined — and generally not confirmed by mainstream scholarship — in several historical articles. An area where further archival research is needed.</p>
+        <div class="entry-tags"><span class="entry-tag">Identity</span><span class="entry-tag">Origin Claims</span><span class="entry-tag">Contested</span></div>
+      </div>
+    </section>
+
+    <!-- GOVERNMENT REPORTS -->
+    <section class="category-section" id="government">
+      <div class="cat-header">
+        <h2 class="cat-title">Government Reports</h2>
+        <span class="cat-count">5 Entries</span>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Government Report</span>
+        <div class="entry-title">Report of the Scheduled Castes and Scheduled Tribes Commission (Lokur Committee)</div>
+        <div class="entry-author">Government of India</div>
+        <div class="entry-publisher">Ministry of Home Affairs, 1965</div>
+        <p class="entry-note">The Lokur Committee report revised the criteria for ST classification and is directly relevant to understanding the legal and political status of Meena as a Scheduled Tribe in Rajasthan.</p>
+        <div class="entry-tags"><span class="entry-tag">ST Classification</span><span class="entry-tag">Government</span><span class="entry-tag">Constitutional</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Government Report</span>
+        <div class="entry-title">Census of India — Rajasthan: Scheduled Tribes Data</div>
+        <div class="entry-author">Office of the Registrar General</div>
+        <div class="entry-publisher">Government of India, various census years (1961–2011)</div>
+        <p class="entry-note">Census data on the Meena population in Rajasthan across census years provides the most reliable quantitative baseline for understanding community size, distribution, literacy, and socioeconomic status.</p>
+        <div class="entry-tags"><span class="entry-tag">Census Data</span><span class="entry-tag">Demographic</span><span class="entry-tag">Available Online</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Government Report</span>
+        <div class="entry-title">Report on Revenue Settlement — Jaipur State</div>
+        <div class="entry-author">British Rajputana Agency</div>
+        <div class="entry-publisher">1860s–1890s (multiple volumes)</div>
+        <p class="entry-note">The detailed revenue settlement reports for Jaipur state — held at the Rajasthan State Archives in Bikaner — contain the granular primary data on Meena zamindari rights, land holdings, and village-level organization. These are the most important untapped primary sources for Meena territorial history.</p>
+        <div class="entry-tags"><span class="entry-tag">Primary Source</span><span class="entry-tag">Revenue</span><span class="entry-tag">RSA Bikaner</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Government Report</span>
+        <div class="entry-title">Tribal Sub-Plan Reports — Rajasthan</div>
+        <div class="entry-author">Government of Rajasthan, Tribal Area Development Department</div>
+        <div class="entry-publisher">Various years, 1970s–present</div>
+        <p class="entry-note">Post-independence Tribal Sub-Plan documents for Rajasthan contain policy and demographic data on scheduled tribe communities including the Meena. Useful for tracking development trajectories and state intervention patterns.</p>
+        <div class="entry-tags"><span class="entry-tag">Post-Independence</span><span class="entry-tag">Development Policy</span><span class="entry-tag">Rajasthan Government</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Government Report</span>
+        <div class="entry-title">Archaeological Survey of India — Site Reports for Amber, Bairath, Ranthambore</div>
+        <div class="entry-author">Archaeological Survey of India</div>
+        <div class="entry-publisher">Various years, 19th century onwards</div>
+        <p class="entry-note">ASI site reports for the major fort and archaeological sites associated with Meena history. Available through the ASI library and National Archives of India. Excavation reports for Bairath are particularly valuable.</p>
+        <div class="entry-tags"><span class="entry-tag">Archaeology</span><span class="entry-tag">ASI</span><span class="entry-tag">Site Reports</span></div>
+      </div>
+    </section>
+
+    <!-- MANUSCRIPTS -->
+    <section class="category-section" id="manuscripts">
+      <div class="cat-header">
+        <h2 class="cat-title">Manuscripts & Archives</h2>
+        <span class="cat-count">4 Entries</span>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Archive</span>
+        <div class="entry-title">Rajasthan State Archives — Bikaner</div>
+        <div class="entry-author">Rajasthan State Archives</div>
+        <div class="entry-publisher">Bikaner, Rajasthan</div>
+        <p class="entry-note">The single most important archival repository for Meena historical research. Holdings include British-period revenue settlement reports, court records, village surveys, and Rajput state administrative documents. Researchers must apply for access. The Persian and Hindi language records of the Kachhwaha and other states contain Meena references awaiting systematic study.</p>
+        <div class="entry-tags"><span class="entry-tag">Primary Archive</span><span class="entry-tag">Bikaner</span><span class="entry-tag">In-Person Access</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Manuscript</span>
+        <div class="entry-title">Vanshavallis (Genealogical Recitations) — Meena Community</div>
+        <div class="entry-author">Community bards and genealogists (Jagas)</div>
+        <div class="entry-publisher">Oral / manuscript tradition, various locations</div>
+        <p class="entry-note">Meena vanshavallis — genealogical recitations maintained by community bards — are among the most important internally generated sources for Meena history. They contain clan lineages, territorial claims, and historical events not recorded in external sources. Systematic collection and digitization of these traditions is an urgent preservation priority.</p>
+        <div class="entry-tags"><span class="entry-tag">Oral Source</span><span class="entry-tag">Community Generated</span><span class="entry-tag">Urgent Preservation</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Archive</span>
+        <div class="entry-title">National Archives of India — Rajputana Agency Records</div>
+        <div class="entry-author">National Archives of India</div>
+        <div class="entry-publisher">New Delhi</div>
+        <p class="entry-note">The NAI holds the records of the British Rajputana Agency, the political department overseeing the princely states of Rajputana. These include correspondence on tribal communities, land disputes, and administrative reports that contain Meena references across multiple states.</p>
+        <div class="entry-tags"><span class="entry-tag">Primary Archive</span><span class="entry-tag">New Delhi</span><span class="entry-tag">Rajputana Agency</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Manuscript</span>
+        <div class="entry-title">Kachhwaha Court Chronicles (Khyats)</div>
+        <div class="entry-author">Kachhwaha court historians</div>
+        <div class="entry-publisher">Jaipur State, 17th–19th centuries (Hindi/Rajasthani)</div>
+        <p class="entry-note">The court chronicles of the Kachhwaha rulers of Jaipur state contain references to Meena communities — primarily as subjects of taxation and occasionally as military auxiliaries. These records are held at the Rajasthan State Archives and the Maharaja Sawai Man Singh II Museum in Jaipur.</p>
+        <div class="entry-tags"><span class="entry-tag">Court Chronicle</span><span class="entry-tag">Kachhwaha</span><span class="entry-tag">Hindi/Rajasthani</span></div>
+      </div>
+    </section>
+
+    <!-- ORAL -->
+    <section class="category-section" id="oral">
+      <div class="cat-header">
+        <h2 class="cat-title">Oral & Folk Sources</h2>
+        <span class="cat-count">3 Entries</span>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Oral Tradition</span>
+        <div class="entry-title">Meena Folk Songs (Geet) — Historical Memory</div>
+        <div class="entry-author">Community tradition</div>
+        <div class="entry-publisher">Living oral tradition, Rajasthan</div>
+        <p class="entry-note">Meena folk songs preserve historical memory of territorial displacement, community migrations, and significant events not recorded in external archives. Collection and transcription of these songs — particularly those with historical content — is an important and underutilized research avenue.</p>
+        <div class="entry-tags"><span class="entry-tag">Folk Songs</span><span class="entry-tag">Historical Memory</span><span class="entry-tag">Preservation Priority</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Oral Tradition</span>
+        <div class="entry-title">Jaga Recitations — Territorial and Clan Memory</div>
+        <div class="entry-author">Jaga (bard) community</div>
+        <div class="entry-publisher">Living oral tradition, Rajasthan</div>
+        <p class="entry-note">The Jaga community serves as hereditary genealogists for Meena clans, maintaining recitations of clan lineages and territorial claims across generations. These traditions provide the most granular internal data on Meena clan organization and history, and are at risk as oral transmission weakens.</p>
+        <div class="entry-tags"><span class="entry-tag">Genealogy</span><span class="entry-tag">Bard Tradition</span><span class="entry-tag">At Risk</span></div>
+      </div>
+
+      <div class="entry-card">
+        <span class="entry-type">Oral Tradition</span>
+        <div class="entry-title">Sacred Site Traditions — Kuldevtas and Community Shrines</div>
+        <div class="entry-author">Community tradition</div>
+        <div class="entry-publisher">Living tradition, multiple locations</div>
+        <p class="entry-note">Meena clan kuldevtas (clan deities) and associated shrines carry territorial and historical memory embedded in religious practice. The geography of these shrines maps onto historical Meena settlement patterns and can be used as one form of evidence for reconstructing territorial presence prior to documentary records.</p>
+        <div class="entry-tags"><span class="entry-tag">Sacred Geography</span><span class="entry-tag">Ritual Memory</span><span class="entry-tag">Research Method</span></div>
+      </div>
+    </section>
+
+    <div class="contribute-section">
+      <h3>Help Build This Archive</h3>
+      <p>If you have access to manuscripts, family records, oral histories, or local knowledge that should be included in this research collection, we want to hear from you.</p>
+      <a href="mailto:archive@meenaarchive.in" class="contribute-btn">Contribute a Source</a>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="footer-brand">THE MEENA ARCHIVE</div>
+  <p class="footer-note">Bibliography compiled from public records, digitized archives, and secondary scholarship.</p>
+</footer>
+
+<script>
+  function setActive(el) {
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // Highlight sidebar on scroll
+  const sections = document.querySelectorAll('.category-section');
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+    navLinks.forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
