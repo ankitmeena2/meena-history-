@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>History — The Meena Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --gold:#C9A84C; --gold-dim:#8a6e32; --ink:#0e0e0e; --stone:#1a1a1a; --ash:#2a2a2a; --parchment:#f2ead8; --text:#d4cfc6; --muted:#7a7570; }
+    body { background: var(--ink); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 300; line-height: 1.7; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
+      background: rgba(14,14,14,0.95); border-bottom: 1px solid #1e1e1e;
+    }
+    .nav-brand { font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.25em; color: var(--gold); text-decoration: none; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text); text-decoration: none; opacity: 0.7; transition: opacity 0.3s, color 0.3s; }
+    .nav-links a:hover, .nav-links a.active { opacity: 1; color: var(--gold); }
+
+    /* PAGE HERO */
+    .page-hero {
+      padding: 10rem 3rem 5rem;
+      background: var(--stone);
+      border-bottom: 1px solid #222;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: 'MEENA';
+      position: absolute; right: -1rem; top: 50%; transform: translateY(-50%);
+      font-family: 'Cinzel', serif; font-size: 10rem; font-weight: 600;
+      color: #1e1e1e; letter-spacing: 0.2em; pointer-events: none; white-space: nowrap;
+    }
+    .breadcrumb { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.3em; color: var(--muted); margin-bottom: 1.5rem; position: relative; z-index: 1; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 6vw, 5rem); font-weight: 300; color: #fff; margin-bottom: 1rem; position: relative; z-index: 1; }
+    .page-sub { font-size: 0.9rem; color: var(--text); opacity: 0.6; max-width: 600px; position: relative; z-index: 1; }
+
+    /* LAYOUT */
+    .history-layout {
+      display: grid; grid-template-columns: 220px 1fr;
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      background: var(--stone); border-right: 1px solid #1e1e1e;
+      padding: 3rem 2rem;
+      position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto;
+    }
+    .sidebar-label { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 0.35em; color: var(--muted); margin-bottom: 1.5rem; display: block; }
+    .sidebar-nav { list-style: none; }
+    .sidebar-nav li { margin-bottom: 0.2rem; }
+    .sidebar-nav a { font-size: 0.78rem; color: var(--text); opacity: 0.6; text-decoration: none; padding: 0.4rem 0.8rem; display: block; border-left: 2px solid transparent; transition: all 0.3s; }
+    .sidebar-nav a:hover, .sidebar-nav a.active { opacity: 1; color: var(--gold); border-left-color: var(--gold); background: rgba(201,168,76,0.05); }
+
+    /* CONTENT */
+    .history-content { padding: 4rem 4rem; }
+
+    .history-section { margin-bottom: 5rem; scroll-margin-top: 90px; }
+
+    .section-eyebrow { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.4em; color: var(--gold); display: block; margin-bottom: 1rem; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; color: #fff; margin-bottom: 1.8rem; line-height: 1.2; }
+    .section-title em { font-style: italic; color: var(--gold); }
+
+    p { font-size: 0.88rem; color: var(--text); opacity: 0.78; line-height: 1.95; margin-bottom: 1.2rem; }
+    p:last-child { margin-bottom: 0; }
+
+    /* PULL QUOTE */
+    .pull-quote {
+      border-left: 3px solid var(--gold);
+      padding: 1.5rem 2rem; margin: 2.5rem 0;
+      background: var(--stone);
+    }
+    .pull-quote p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem; font-style: italic; font-weight: 300;
+      color: var(--parchment); opacity: 1; margin: 0 0 0.6rem;
+      line-height: 1.6;
+    }
+    .pull-quote cite { font-family: 'Cinzel', serif; font-size: 0.58rem; letter-spacing: 0.2em; color: var(--muted); font-style: normal; }
+
+    /* KINGDOMS TABLE */
+    .kingdoms-table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
+    .kingdoms-table th {
+      font-family: 'Cinzel', serif; font-size: 0.58rem; letter-spacing: 0.25em;
+      color: var(--muted); text-align: left; padding: 0.8rem 1rem;
+      border-bottom: 1px solid #2a2a2a; background: var(--stone);
+    }
+    .kingdoms-table td {
+      font-size: 0.82rem; color: var(--text); opacity: 0.75;
+      padding: 1rem 1rem; border-bottom: 1px solid #1a1a1a;
+      vertical-align: top;
+    }
+    .kingdoms-table tr:hover td { background: #131313; opacity: 1; }
+    .kingdoms-table td:first-child { color: var(--gold); font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.1em; width: 40px; }
+    .kingdoms-table td:nth-child(2) { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: #fff; opacity: 1; }
+
+    /* FORTS LIST */
+    .forts-built { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .fort-item {
+      background: var(--stone); padding: 1rem 1.2rem;
+      border-left: 2px solid var(--gold-dim);
+      font-size: 0.82rem; color: var(--text); opacity: 0.8;
+    }
+    .fort-item strong { display: block; font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: #fff; font-weight: 400; margin-bottom: 0.2rem; }
+
+    /* SECTS */
+    .sects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5px; background: #1e1e1e; margin: 2rem 0; }
+    .sect-card { background: var(--ink); padding: 2rem; }
+    .sect-num { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; color: var(--ash); line-height: 1; margin-bottom: 0.5rem; }
+    .sect-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--gold); margin-bottom: 0.8rem; }
+    .sect-desc { font-size: 0.8rem; color: var(--text); opacity: 0.65; line-height: 1.8; }
+
+    /* GEO BOX */
+    .geo-box { background: var(--stone); padding: 2rem 2.5rem; margin: 2rem 0; border-top: 1px solid var(--gold-dim); border-bottom: 1px solid var(--gold-dim); }
+    .geo-box h4 { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.3em; color: var(--gold); margin-bottom: 1rem; }
+    .geo-tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .geo-tag { font-size: 0.75rem; color: var(--text); opacity: 0.7; background: var(--ash); padding: 0.3rem 0.8rem; }
+
+    /* DIVIDER */
+    .section-divider { border: none; border-top: 1px solid #1e1e1e; margin: 3rem 0; }
+
+    /* SOURCE NOTE */
+    .source-note { font-size: 0.72rem; color: var(--muted); font-style: italic; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #1e1e1e; opacity: 1; }
+
+    footer { background: #080808; padding: 2rem 3rem; border-top: 1px solid #1e1e1e; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .footer-brand { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--gold); }
+    .footer-note { font-size: 0.72rem; color: var(--muted); }
+
+    @media(max-width: 768px) {
+      nav { padding: 1rem 1.5rem; } .nav-links { display: none; }
+      .history-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .history-content { padding: 2rem 1.5rem; }
+      .forts-built, .sects-grid { grid-template-columns: 1fr; }
+      .page-hero::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand">THE MEENA ARCHIVE</a>
+  <ul class="nav-links">
+    <li><a href="history.html" class="active">History</a></li>
+    <li><a href="kingdoms.html">Kingdoms</a></li>
+    <li><a href="clans.html">Clans</a></li>
+    <li><a href="forts.html">Forts</a></li>
+    <li><a href="research.html">Research</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <p class="breadcrumb"><a href="index.html">Archive</a> &nbsp;/&nbsp; History</p>
+  <h1 class="page-title">History of the Meena</h1>
+  <p class="page-sub">From the ancient Matsya kingdom to the Criminal Tribes Act and beyond — a documented history of one of Rajasthan's oldest communities.</p>
+</div>
+
+<div class="history-layout">
+
+  <aside class="sidebar">
+    <span class="sidebar-label">Sections</span>
+    <ul class="sidebar-nav">
+      <li><a href="#origin" class="active" onclick="setActive(this)">Origin & Identity</a></li>
+      <li><a href="#geography" onclick="setActive(this)">Geography</a></li>
+      <li><a href="#vedic" onclick="setActive(this)">Vedic Period</a></li>
+      <li><a href="#ancient" onclick="setActive(this)">Ancient History</a></li>
+      <li><a href="#kingdoms" onclick="setActive(this)">Main Kingdoms</a></li>
+      <li><a href="#medieval" onclick="setActive(this)">Medieval History</a></li>
+      <li><a href="#british" onclick="setActive(this)">Under British Rule</a></li>
+      <li><a href="#recent" onclick="setActive(this)">Recent History</a></li>
+      <li><a href="#sects" onclick="setActive(this)">The Four Sects</a></li>
+    </ul>
+  </aside>
+
+  <main class="history-content">
+
+    <!-- ORIGIN -->
+    <section class="history-section" id="origin">
+      <span class="section-eyebrow">Origin & Identity</span>
+      <h2 class="section-title">Who are the <em>Meena</em>?</h2>
+      <p>Meenas, Meena or Mina is a caste and community mainly found in Rajasthan, India. The name <em>Mina</em> is derived from <em>Meen</em>, meaning fish in Sanskrit. The Meenas claim descent from the Matsya Avatar — the fish incarnation of Vishnu — and celebrate Meenesh Jayanti in the name of Vishnu on the 3rd Tithi of Chaitra Shukla Paksha according to the Hindu calendar. The primary scriptural reference for this belief is the Matsya Purana.</p>
+      <p>Originally a ruling community, the Meenas were the rulers of Matsya — that is, Rajasthan or the Matsya Union. Their decline began with the assimilation of Scythian groups and was compounded when the British government declared them a "Criminal Tribe" — an act taken, in part, to support the Rajput kingdoms allied with the British, against whom the Meenas were still conducting guerrilla resistance to reclaim their lost kingdoms.</p>
+
+      <div class="pull-quote">
+        <p>"Scholars still disagree as to whether the Minas are an indigenous tribe, or whether they migrated to the region from Central Asia. According to Britannica, the Minas are possibly of inner Asiatic origin, and tradition suggests that they migrated to India in the 7th century with the Rajputs."</p>
+        <cite>— Encyclopaedia of Indian Castes, Races and Tribes</cite>
+      </div>
+
+      <p>In the book <em>Culture and Integration of India Tribes</em> by R.S. Mann, it is clearly mentioned that Meenas are considered a Kshatriya caste, equal in status to the Rajputs, and holding a higher social position in society. They are well integrated with other higher castes — Brahmin priests perform all rituals from birth, marriage and death for Meenas, as they do for other higher Hindu castes.</p>
+
+      <p class="source-note">Sources: Encyclopaedia of Indian Castes, Races and Tribes; R.S. Mann, Culture and Integration of India Tribes; Matsya Purana.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- GEOGRAPHY -->
+    <section class="history-section" id="geography">
+      <span class="section-eyebrow">Geography</span>
+      <h2 class="section-title">Where the <em>Meena</em> live</h2>
+      <p>Members of the Meena community are found primarily in the northern part of Rajasthan. Meenas share the Brij and Matsya Area of Rajasthan — including Sawai Madhopur, Dausa, Jaipur, Dholpur and Karauli districts — with other communities.</p>
+      <p>They inhabit the area from Jaipur–Sikar through the Bharatpur region, and are also widely spread in Kota, Jhalawar and Bundi. The Shekhawati region and Alwar in the northeast are also areas of significant Meena presence. The community is also found in north-western Madhya Pradesh.</p>
+      <p>The Meenas of Rajasthan are an agricultural people, occupying one of the most fertile regions of the state. The Meena kings were the early rulers of major parts of Rajasthan, including Amber — the early capital of Jaipur.</p>
+
+      <div class="geo-box">
+        <h4>Districts with Significant Meena Population</h4>
+        <div class="geo-tags">
+          <span class="geo-tag">Jaipur</span>
+          <span class="geo-tag">Dausa</span>
+          <span class="geo-tag">Sawai Madhopur</span>
+          <span class="geo-tag">Karauli</span>
+          <span class="geo-tag">Dholpur</span>
+          <span class="geo-tag">Alwar</span>
+          <span class="geo-tag">Bharatpur</span>
+          <span class="geo-tag">Sikar</span>
+          <span class="geo-tag">Kota</span>
+          <span class="geo-tag">Jhalawar</span>
+          <span class="geo-tag">Bundi</span>
+          <span class="geo-tag">Tonk</span>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- VEDIC -->
+    <section class="history-section" id="vedic">
+      <span class="section-eyebrow">Vedic Period</span>
+      <h2 class="section-title">The <em>Fish Kingdom</em> of the Vedas</h2>
+      <p>In ancient times, Rajasthan was ruled by a dynasty of Meenas whose emblem was the fish — like the Pandyan kingdom of the south. The Meena kingdom ruled the east of the river Yamuna, roughly corresponding to the modern Jaipur and Alwar areas. This fish kingdom — called the <em>Matsya Kingdom</em> in Sanskrit — is mentioned in the Rig Veda.</p>
+      <p>In later days, the Bhils and Meenas mixed with Pardeshis — foreign peoples who were Scythian, Hepthalite or other Central Asian clans. The Scythian-mixed Meenas and Bhils remain as Rajput sub-clans, while the Meenas and Bhils displaced by Scythian invaders and Muslims mixed with tribal Bhils to form the Bhil-Meena communities.</p>
+      <p>Meenas of Rajasthan till date strongly follow Vedic culture. They worship Bhairoon (Shiva), Hanuman and Krishna as well as the Devis. Notably, Meenas have historically accorded better rights to women compared to many other Hindu castes — remarriage of widows and divorcees has long been a common and accepted practice within the community, a tradition rooted in Vedic civilization.</p>
+
+      <div class="pull-quote">
+        <p>"These Meena Levites appear to be a collection of all kinds of waifs and cuttings from upper religious castes... one might almost hazard the speculation that they are something like a Brahmanic tribe in faint embryo."</p>
+        <cite>— Alfred Comyn Lyall</cite>
+      </div>
+
+      <p class="source-note">Sources: Rig Veda references to Matsya; Alfred Comyn Lyall; Hindu law acts of 1955–56 and their relationship to Meena customary practices.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ANCIENT -->
+    <section class="history-section" id="ancient">
+      <span class="section-eyebrow">Ancient History</span>
+      <h2 class="section-title">Virat Nagar and the <em>Matsya Janpad</em></h2>
+      <p>At the time the great epic Mahabharata was written, there existed a Janpad known as the <em>Matsya Janpad</em>. Its capital was <em>Virat Nagar</em> — now known as Bairath — where the Pandavas took shelter for one year during their exile. Places known as "Pandupol" near Virat Nagar still survive today.</p>
+      <p>Abhimanyu, son of Arjuna and great warrior, married Uttara, the princess of Virat Nagar. After Abhimanyu died in the battle of Kurukshetra, Uttara was pregnant. After the Pandavas departed to the Himalayas, the son delivered by Uttara was Parikshit, who inherited the Pandava legacy and ruled India. He was killed by Takshak, a Nagavanshi Kshatriya. His son Janmejay performed a Yagya to defeat all Nagas at Nagdah — now known as Nagada in Madhya Pradesh.</p>
+      <p>King Virat and all his sons and brothers were killed at Kurukshetra. Some clan brothers ruled this area after him. Many historical artefacts from this region belong to the time of Lord Buddha. <strong>The Meenas are considered the brothers and kinsmen of Virata, the ruler of Virat Nagar. They ruled this area until the 11th century.</strong></p>
+
+      <p class="source-note">Sources: Mahabharata; archaeological excavations at Bairath (Cunningham, ASI); community historical traditions.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- KINGDOMS -->
+    <section class="history-section" id="kingdoms">
+      <span class="section-eyebrow">Main Kingdoms</span>
+      <h2 class="section-title">The Meena <em>Kingdoms</em> of Rajasthan</h2>
+      <p>The Meenas ruled a network of kingdoms across Rajasthan, each associated with distinct clan lineages. The following table records the major Meena kingdoms and the clans of their rulers:</p>
+
+      <table class="kingdoms-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Kingdom</th>
+            <th>Ruling Clan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Khoh-Gong</td><td>Chanda — Agnivanshi (a branch of Chauhan)</td></tr>
+          <tr><td>2</td><td>Sihra / Jamwa Ramgarh</td><td>Sihra Meena</td></tr>
+          <tr><td>3</td><td>Gatoor &amp; Jhotwada</td><td>Nandla (also called Bad-Goti)</td></tr>
+          <tr><td>4</td><td>Amer (old capital of Jaipur State)</td><td>Susawat / Soosawut</td></tr>
+          <tr><td>5</td><td>Nayala</td><td>Davedwal</td></tr>
+          <tr><td>6</td><td>Gomladu</td><td>Gomladu clan</td></tr>
+          <tr><td>7</td><td>Ranthambore</td><td>Tatu — a branch of Chauhan</td></tr>
+          <tr><td>8</td><td>Bundi</td><td>Ushara (Parihar Meenas / Pratihar)</td></tr>
+          <tr><td>9</td><td>Mawar</td><td>Mawar Meena</td></tr>
+          <tr><td>10</td><td>Nandla</td><td>Nandla Meena</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:300; color:#fff; margin: 2.5rem 0 1.2rem;">Forts Built by Meena Kings</h3>
+      <div class="forts-built">
+        <div class="fort-item"><strong>Fort of Amaghar</strong>Khoh-Gong region</div>
+        <div class="fort-item"><strong>Fort of Hatrohi</strong>Meena hill territory</div>
+        <div class="fort-item"><strong>Fort of Khog</strong>Meena stronghold</div>
+        <div class="fort-item"><strong>Fort of Jamvaramghar</strong>Sihra Meena territory, near Jaipur</div>
+      </div>
+
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:300; color:#fff; margin: 2.5rem 0 1.2rem;">Temples Built by Meena Kings</h3>
+      <div class="forts-built">
+        <div class="fort-item"><strong>Dant Mata Temple</strong>Dynasty goddess of the Sihra Meena clan</div>
+        <div class="fort-item"><strong>Shiv Temple at Nayi ka Nath</strong>Banskho, Jaipur</div>
+        <div class="fort-item"><strong>Banki Mata Temple</strong>Raysar, Jaipur — Bradwal Meena dynasty goddess</div>
+        <div class="fort-item"><strong>Bai Temple</strong>Badi Chopad, Jaipur</div>
+      </div>
+
+      <p class="source-note">Sources: Encyclopaedia of Indian Castes, Races and Tribes; community historical records; James Tod, Annals and Antiquities of Rajasthan.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- MEDIEVAL -->
+    <section class="history-section" id="medieval">
+      <span class="section-eyebrow">Medieval History</span>
+      <h2 class="section-title">The Loss of the <em>Kingdoms</em></h2>
+      <p>According to Tod, the Meena King Raja Ralun Singh — also known as Aan Singh Chanda of Khogong — kindheartedly adopted a widowed grandmother and her child who sought refuge in his court. Later the Meena king sent the child, Dhola Rae, to Delhi to represent the Meena kingdom. The Rajput, in gratitude for these favours, returned with Rajput conspirators and massacred the weaponless Meenas on Diwali while they were performing rituals — specifically Pitra Trapan, a ceremony during which it is customary for Meenas to be unarmed — "filling the reservoirs in which the Meenas bathed with their dead bodies" (Tod, II.281), and thus conquered Khogong.</p>
+      <p>Dhola Rae then subjugated the Sihra Gotra of Meenas at the site later known as Jamwa Ramgarh near Jaipur, and transferred his capital there. Becoming the son-in-law of the prince of Ajmer, he died while battling 11,000 Meenas (Tod, II.282). His son Maidul Rae "made a conquest of Amber from the Soosawut Meenas, whose king was the head of the Meena confederation. He subdued the Nandia Meenas, annexing the Gatoor-Gatti district" (Tod, II.282).</p>
+
+      <div class="pull-quote">
+        <p>"The Meenas were the original builders of Amber, which town they consecrated to Amba, the Mother Goddess, whom they knew as 'Gatta Rani' or 'Queen of the Pass'."</p>
+        <cite>— James Tod, Annals and Antiquities of Rajasthan, Vol. II, p. 282</cite>
+      </div>
+
+      <p>Hoondeo succeeded to the throne and "continued the warfare against the Meenas" (Tod, II.282). Koontal, his successor, fought the Meenas "in which the Meenas were defeated, which secured his rule throughout Dhundhar" (Tod, II.282).</p>
+      <p>Describing the destruction of the Meena town of Naed, Tod wrote that the Kachhwaha ruler "destroyed the Meena sovereignty of Nand, levelled its half hundred gates, and erected the town of Lohan on its ruins" (Tod, II.283). The Meena ruler of Noen (Nahn) was Rao Bada Meena, who was so wealthy that his riches were compared to Akbar's empire in a local saying: <em>"Bada ka tilans Akbar te char bagh"</em> — Rao Bada's mansion surpasses Akbar's palace.</p>
+      <p>Bharmal had asked Rao Bada to give his daughter Shashivadini to Akbar. Later Bharmal gave his daughter Jodh to Akbar instead. The combined army of Akbar and Bharmal then attacked Rao Bada Meena, killed him, and damaged 52 forts and 56 gates. Bada's treasure was shared between Akbar and Bharmal — Bharmal kept his share in Jaigarh Fort near Amber. <em>The hill on which Jaigarh was built was called Chil Tila when it was ruled by the Meenas.</em></p>
+      <p>The Kachhwaha state is said to have been founded around the 11th century (c. 1097 CE) by Dulaha Raya, who hailed from Gwalior. He and his Kachhwaha kinsmen absorbed or drove out the local Meenas and Bargujar Rajput chiefs — after which the Meenas became a key ally of the Kachwahas.</p>
+
+      <p class="source-note">Sources: James Tod, Annals and Antiquities of Rajasthan, Vol. II, pp. 281–283; Kachhwaha dynastic records; local oral traditions.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- BRITISH -->
+    <section class="history-section" id="british">
+      <span class="section-eyebrow">Under British Rule</span>
+      <h2 class="section-title">The <em>Criminal Tribes Act</em> and its Legacy</h2>
+      <p>During British rule in India, the Meenas were placed under the Criminal Tribes Act 1871, thereby stigmatized for a long time. After independence, they were denotified in 1952. Mark Brown (<em>Social Legal Studies</em>, 2004) elaborated on the impact and issues faced by the Meena community during British rule, and the change in their status from a higher social caste to a criminal tribe. He also noted the division that emerged: the Zamindar Mina group and the Chowkidar Minas.</p>
+      <p>Brown documented why and how the Meenas came to be placed under the Criminal Tribal category despite being very different from other tribal peoples at the time, and how the British managed to control the Meenas — who had become a growing threat to British rule in northern India.</p>
+
+      <div class="pull-quote">
+        <p>"The Meenas are an athletic and brave race, tall, handsome, and pleasing to address, obedient to their leaders and sensible in kindness, but at the same time blood-thirsty and revengeful."</p>
+        <cite>— Woolbert, 1898, on the raising of the Meena Battalion at Deoli</cite>
+      </div>
+
+      <p>Vivian (1912) suggested that at the turn of the century there were around one million Minas and related clans, though only a small number of these had ever been involved in criminal activity. Nevertheless, the colonial administration cast the entire community under suspicion.</p>
+
+      <p class="source-note">Sources: Mark Brown, Social Legal Studies (2004); Criminal Tribes Act 1871; Woolbert (1898); Vivian (1912).</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- RECENT -->
+    <section class="history-section" id="recent">
+      <span class="section-eyebrow">Recent History</span>
+      <h2 class="section-title">Resilience and <em>Continuity</em></h2>
+      <p>Despite invasions of their lands throughout history, the Meenas were never fully assimilated, thereby retaining much of their culture and individuality. The Meenas have played an important part in the history of Rajasthan — earlier known as Rajputana. In former times, Rajput and Meena chiefs, in subordination to the Taur kings of Delhi, ruled over a considerable tract of the country.</p>
+      <p>During the wars with Rajputs and Mughals, the Meena community was divided into four basic sects — a division that has shaped the community's social structure into the present day.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- SECTS -->
+    <section class="history-section" id="sects">
+      <span class="section-eyebrow">Social Organization</span>
+      <h2 class="section-title">The <em>Four Sects</em> of the Meena</h2>
+      <p>During the wars with Rajputs and Mughals, the Meena community divided into four distinct sects. Each carries a distinct history, social status, and relationship to land and state authority:</p>
+
+      <div class="sects-grid">
+        <div class="sect-card">
+          <div class="sect-num">01</div>
+          <div class="sect-name">Zamindar Meena</div>
+          <p class="sect-desc">Traditionally connected with farming. Most are economically stable. They claim Kshatriya status equivalent to that of the Rajputs, and in the local socio-ritual hierarchy enjoy a clean caste status. They are the most important cultivators of the Karauli, Sawai Madhopur, Jaipur and Gangapur areas.</p>
+        </div>
+        <div class="sect-card">
+          <div class="sect-num">02</div>
+          <div class="sect-name">Chowkidar Meena</div>
+          <p class="sect-desc">During the Middle Ages, this group adopted fighting in armies. Later, the British enforced them to report regularly at chaukis (checkposts) to ensure they did not engage in criminal activities — hence the name. Like Zamindar Meenas, they call themselves Meena Thakur and claim Kshatriya status.</p>
+        </div>
+        <div class="sect-card">
+          <div class="sect-num">03</div>
+          <div class="sect-name">Parihar Meena</div>
+          <p class="sect-desc">Also known as Pratihar Meenas. Associated historically with the Bundi region and the Ushara kingdom. This sect maintained distinct ritual and territorial identities through the medieval and colonial periods.</p>
+        </div>
+        <div class="sect-card">
+          <div class="sect-num">04</div>
+          <div class="sect-name">Bhil Meena</div>
+          <p class="sect-desc">Said to be descended from those who, in periods of war between their tribe and Muslims, were compelled to quit their native homes and seek refuge in the vastness of Rajputana. There they formed alliances with aboriginal families and established new communities. Considered tribal in classification.</p>
+        </div>
+      </div>
+
+      <p class="source-note">Sources: Encyclopaedia of Indian Castes, Races and Tribes; Mark Brown (2004); community historical traditions; K.S. Singh, People of India: Rajasthan.</p>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="footer-brand">THE MEENA ARCHIVE</div>
+  <p class="footer-note">Content sourced from the Encyclopaedia of Indian Castes, Races and Tribes; Tod's Annals; and secondary scholarship.</p>
+</footer>
+
+<script>
+  function setActive(el) {
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+    el.classList.add('active');
+  }
+  const sections = document.querySelectorAll('.history-section');
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+    navLinks.forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
