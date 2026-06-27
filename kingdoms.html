@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kingdoms — The Meena Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #C9A84C; --gold-dim: #8a6e32; --ink: #0e0e0e;
+      --stone: #1a1a1a; --ash: #2a2a2a; --parchment: #f2ead8;
+      --text: #d4cfc6; --muted: #7a7570;
+    }
+    body { background: var(--ink); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 300; line-height: 1.7; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
+      background: rgba(14,14,14,0.95); border-bottom: 1px solid #1e1e1e;
+    }
+    .nav-brand { font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.25em; color: var(--gold); text-decoration: none; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text); text-decoration: none; opacity: 0.7; transition: opacity 0.3s, color 0.3s; }
+    .nav-links a:hover, .nav-links a.active { opacity: 1; color: var(--gold); }
+
+    .page-hero {
+      padding: 10rem 3rem 5rem;
+      background: var(--stone);
+      border-bottom: 1px solid #222;
+    }
+    .breadcrumb { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.3em; color: var(--muted); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 6vw, 5rem); font-weight: 300; color: #fff; margin-bottom: 1rem; }
+    .page-sub { font-size: 0.9rem; color: var(--text); opacity: 0.6; max-width: 600px; }
+
+    .intro-band {
+      background: var(--ink); padding: 5rem 3rem;
+      display: grid; grid-template-columns: 1fr 1.8fr; gap: 5rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .intro-label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.35em; color: var(--gold); margin-bottom: 1rem; display: block; }
+    .intro-heading { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: #fff; line-height: 1.3; }
+    .intro-body { font-size: 0.85rem; color: var(--text); opacity: 0.7; line-height: 1.9; }
+
+    .kingdoms-list { padding: 2rem 3rem 6rem; max-width: 1100px; margin: 0 auto; }
+    .list-header { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.4em; color: var(--muted); border-bottom: 1px solid #222; padding-bottom: 1rem; margin-bottom: 0; display: grid; grid-template-columns: 60px 1fr 180px 130px; gap: 1rem; }
+
+    .kingdom-entry {
+      display: grid; grid-template-columns: 60px 1fr 180px 130px;
+      gap: 1rem; align-items: start;
+      border-bottom: 1px solid #1e1e1e;
+      padding: 2.5rem 0;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .kingdom-entry:hover { background: #131313; margin: 0 -1rem; padding: 2.5rem 1rem; }
+    .k-index { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--ash); font-weight: 300; }
+    .k-main { }
+    .k-name { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; color: #fff; margin-bottom: 0.4rem; }
+    .k-desc { font-size: 0.82rem; color: var(--text); opacity: 0.6; line-height: 1.7; }
+    .k-location { font-size: 0.78rem; color: var(--muted); padding-top: 0.3rem; }
+    .k-period { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--gold); padding-top: 0.3rem; }
+
+    .detail-panel {
+      background: var(--stone); border-left: 2px solid var(--gold);
+      padding: 3rem; max-width: 1100px; margin: 0 auto 2rem;
+      display: none;
+    }
+    .detail-panel.open { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+    .detail-panel h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--gold); margin-bottom: 1rem; }
+    .detail-panel p { font-size: 0.83rem; color: var(--text); opacity: 0.75; line-height: 1.9; }
+    .detail-close { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.2em; color: var(--muted); cursor: pointer; margin-top: 1.5rem; }
+    .detail-close:hover { color: var(--gold); }
+
+    footer { background: #080808; padding: 2rem 3rem; border-top: 1px solid #1e1e1e; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .footer-brand { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--gold); }
+    .footer-note { font-size: 0.72rem; color: var(--muted); }
+
+    @media(max-width:768px) {
+      nav { padding: 1rem 1.5rem; } .nav-links { display:none; }
+      .intro-band { grid-template-columns: 1fr; padding: 3rem 1.5rem; gap: 2rem; }
+      .kingdoms-list { padding: 2rem 1.5rem 4rem; }
+      .list-header { display:none; }
+      .kingdom-entry { grid-template-columns: 40px 1fr; }
+      .k-location, .k-period { display:none; }
+      .detail-panel.open { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-brand">THE MEENA ARCHIVE</a>
+    <ul class="nav-links">
+      <li><a href="kingdoms.html" class="active">Kingdoms</a></li>
+      <li><a href="clans.html">Clans</a></li>
+      <li><a href="forts.html">Forts</a></li>
+      <li><a href="research.html">Research</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html">Archive</a> &nbsp;/&nbsp; Kingdoms</p>
+    <h1 class="page-title">Kingdoms</h1>
+    <p class="page-sub">The political evolution of Meena kingdoms across Rajasthan — from pre-Rajput chieftaincies through the colonial period and post-independence integration.</p>
+  </div>
+
+  <div class="intro-band">
+    <div>
+      <span class="intro-label">Historical Context</span>
+      <h2 class="intro-heading">Before the Rajputs, there were the Meena</h2>
+    </div>
+    <p class="intro-body">The Meena people held political authority across significant portions of what is now Rajasthan well before the rise of Rajput dynasties. Medieval chronicles, folk genealogies (vanshavallis), and archaeological evidence point to a network of Meena chieftaincies centered on river valleys and hill fortifications. The displacement of Meena rulers by incoming Rajput clans — beginning roughly in the 10th–12th centuries CE — is a recurring theme in the regional political history, though the exact chronology remains contested among historians. Several Meena chiefs maintained residual authority as revenue functionaries or zamindars well into the colonial period. Click any entry below to read more.</p>
+  </div>
+
+  <div class="kingdoms-list" id="kingdoms-list">
+    <div class="list-header">
+      <span>#</span><span>Kingdom / Chieftaincy</span><span>Region</span><span>Period</span>
+    </div>
+
+    <!-- Entries -->
+    <div class="kingdom-entry" onclick="toggleDetail('d1', this)">
+      <div class="k-index">01</div>
+      <div class="k-main">
+        <div class="k-name">Dhundhar (Amber Region)</div>
+        <div class="k-desc">Meena chieftaincy at Amber, predecessor to the Kachhwaha Rajput kingdom of the same territory.</div>
+      </div>
+      <div class="k-location">Jaipur district, Rajasthan</div>
+      <div class="k-period">Pre-11th century CE</div>
+    </div>
+    <div class="detail-panel" id="d1">
+      <div>
+        <h3>The Susawat Meena of Amber</h3>
+        <p>The Amber plateau was controlled by the Susawat clan of the Meena before the Kachhwaha Rajputs established their presence there. Local oral traditions and some colonial-era gazetteers record that the Kachhwaha chiefs wrested Amber from the Meena through a combination of military pressure and matrimonial alliance. The Meena of the region were subsequently absorbed into the administrative structure of the emerging Kachhwaha state as revenue collectors and watchmen — a subordinated but persistent role.</p>
+        <p style="margin-top:1rem">The site of Amber Fort, which later became a grand Rajput palace, likely contains earlier Meena structural elements, though systematic archaeological work to identify pre-Kachhwaha strata has not yet been conducted.</p>
+      </div>
+      <div>
+        <h3>Historical Sources</h3>
+        <p>Information on the Meena presence at Amber comes primarily from: (1) colonial district gazetteers compiled by British administrators in the 19th century; (2) vanshavallis (genealogical recitations) maintained by Meena bards; and (3) secondary scholarship on Rajput state formation, particularly K.S. Singh's <em>People of India: Rajasthan</em> volumes.</p>
+        <p style="margin-top:1rem; font-size:0.75rem; color:var(--muted)">Note: The specific chronology of Meena displacement from Amber is not established with primary documentary precision. Claims should be treated as traditionally reported rather than archivally confirmed.</p>
+      </div>
+      <div style="grid-column:1/-1"><span class="detail-close" onclick="closeDetail('d1', event)">▲ Close Entry</span></div>
+    </div>
+
+    <div class="kingdom-entry" onclick="toggleDetail('d2', this)">
+      <div class="k-index">02</div>
+      <div class="k-main">
+        <div class="k-name">Bairath (Viratnagar)</div>
+        <div class="k-desc">Ancient Matsya kingdom capital with significant Meena territorial presence through the early medieval period.</div>
+      </div>
+      <div class="k-location">Alwar district, Rajasthan</div>
+      <div class="k-period">Pre-Mauryan to medieval</div>
+    </div>
+    <div class="detail-panel" id="d2">
+      <div>
+        <h3>Bairath: A Layered Historical Site</h3>
+        <p>Bairath (ancient Viratnagar) is one of the most archaeologically significant sites in Rajasthan, with occupation layers dating to the Mauryan period and beyond. The region was associated with the Matsya janapada of the Mahabharata era. In later periods, Meena clans held significant territorial authority in the surrounding hills.</p>
+        <p style="margin-top:1rem">The site yielded Ashokan edicts during 19th-century excavations, indicating its political importance in the Mauryan state. The continuity of Meena population in this area through successive political orders makes it a key site for understanding pre-Rajput tribal political organization.</p>
+      </div>
+      <div>
+        <h3>Archaeological Evidence</h3>
+        <p>Excavations at Bairath have uncovered remains from the Mauryan, Sunga, and early medieval periods. The Meena claim to continuity with the ancient Matsya people is a recurring element of community identity narratives, though the genetic and cultural link between the historical Matsya and the contemporary Meena community is a matter of scholarly discussion rather than established fact.</p>
+      </div>
+      <div style="grid-column:1/-1"><span class="detail-close" onclick="closeDetail('d2', event)">▲ Close Entry</span></div>
+    </div>
+
+    <div class="kingdom-entry" onclick="toggleDetail('d3', this)">
+      <div class="k-index">03</div>
+      <div class="k-main">
+        <div class="k-name">Toda Bhim Region</div>
+        <div class="k-desc">Meena chieftaincy in the Karauli–Sawai Madhopur corridor, with documented territorial control through the 18th century.</div>
+      </div>
+      <div class="k-location">Karauli district, Rajasthan</div>
+      <div class="k-period">Medieval – 18th century</div>
+    </div>
+    <div class="detail-panel" id="d3">
+      <div>
+        <h3>The Karauli Corridor</h3>
+        <p>The territory stretching from Toda Bhim through the Chambal ravines represented a zone of significant Meena political authority well into the early modern period. Colonial records from the 19th century document the presence of powerful Meena zamindars whose territorial control predated Rajput political consolidation in the area.</p>
+        <p style="margin-top:1rem">The interaction between Meena chiefs and the Yadava rulers of the Karauli state produced a layered political geography that survives in place names, land tenure patterns, and local memory.</p>
+      </div>
+      <div>
+        <h3>Colonial Documentation</h3>
+        <p>British settlement reports from the 1860s–1890s contain detailed records of Meena zamindari rights, revenue shares, and territorial disputes in this region. These records, now held in the Rajasthan State Archives in Bikaner, represent the most granular primary source base for reconstructing the late Meena political economy of the corridor.</p>
+      </div>
+      <div style="grid-column:1/-1"><span class="detail-close" onclick="closeDetail('d3', event)">▲ Close Entry</span></div>
+    </div>
+
+    <div class="kingdom-entry" onclick="toggleDetail('d4', this)">
+      <div class="k-index">04</div>
+      <div class="k-main">
+        <div class="k-name">Alwar Hills Chieftaincies</div>
+        <div class="k-desc">A cluster of Meena-controlled hill territories in the Aravalli range, documented in Mughal-era records and colonial gazetteers.</div>
+      </div>
+      <div class="k-location">Alwar district, Rajasthan</div>
+      <div class="k-period">Mughal era – 19th century</div>
+    </div>
+    <div class="detail-panel" id="d4">
+      <div>
+        <h3>Aravalli Hill Authority</h3>
+        <p>The Aravalli hill ranges of Alwar district hosted a series of Meena chief-controlled territories that maintained semi-autonomous status through the Mughal period. Akbar's Ain-i-Akbari references the Mewati hill regions — areas with significant Meena populations — as administratively challenging for imperial revenue extraction.</p>
+        <p style="margin-top:1rem">This mountainous terrain provided both refuge and resource base for Meena communities who resisted incorporation into Rajput-dominated agrarian states.</p>
+      </div>
+      <div>
+        <h3>Mughal and Colonial Records</h3>
+        <p>The Ain-i-Akbari (c. 1590) and later Mughal farmans reference Meena chiefs as intermediaries in revenue collection. Colonial records, particularly the Alwar State Gazetteer, document the persistence of Meena territorial rights through the British period.</p>
+      </div>
+      <div style="grid-column:1/-1"><span class="detail-close" onclick="closeDetail('d4', event)">▲ Close Entry</span></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-brand">THE MEENA ARCHIVE</div>
+    <p class="footer-note">All entries are sourced. Claims marked where historically contested.</p>
+  </footer>
+
+  <script>
+    function toggleDetail(id, entry) {
+      const panel = document.getElementById(id);
+      const isOpen = panel.classList.contains('open');
+      document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('open'));
+      if (!isOpen) { panel.classList.add('open'); panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    }
+    function closeDetail(id, e) {
+      e.stopPropagation();
+      document.getElementById(id).classList.remove('open');
+    }
+  </script>
+</body>
+</html>
